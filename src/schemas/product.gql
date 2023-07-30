@@ -1,0 +1,8 @@
+type Product implements Node {
+  id: Binary!
+  name: String!
+  description: String!
+  owner: Account!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}

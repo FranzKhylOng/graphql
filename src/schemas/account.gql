@@ -1,0 +1,8 @@
+type Account implements Node {
+  id: Binary!
+  firstname: String!
+  lastname: String!
+  emailAddress: EmailAddress!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
