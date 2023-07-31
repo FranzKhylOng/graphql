@@ -6,3 +6,15 @@ type Account implements Node {
   createdAt: DateTime!
   updatedAt: DateTime!
 }
+
+input SignUpInput {
+  emailAddress: EmailAddress!
+  firstname: String!
+  lastname: String!
+  password: String!
+}
+
+input AuthenticateInput {
+  emailAddress: EmailAddress!
+  password: String!
+}
