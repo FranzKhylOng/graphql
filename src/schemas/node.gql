@@ -1,3 +1,10 @@
 interface Node {
   id: Binary!
 }
+
+type Query {
+  """
+  Returns an object given by its ID.
+  """
+  node(id: Binary!): Node!
+}

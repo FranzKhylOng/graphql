@@ -1,4 +1,3 @@
-
 /*
  * -------------------------------------------------------
  * THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
@@ -9,12 +8,12 @@
 /* eslint-disable */
 
 export interface Book {
-    title?: Nullable<string>;
-    author?: Nullable<string>;
+  title?: Nullable<string>;
+  author?: Nullable<string>;
 }
 
 export interface IQuery {
-    books(): Nullable<Nullable<Book>[]> | Promise<Nullable<Nullable<Book>[]>>;
+  books(): Nullable<Nullable<Book>[]> | Promise<Nullable<Nullable<Book>[]>>;
 }
 
 type Nullable<T> = T | null;

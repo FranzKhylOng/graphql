@@ -7,6 +7,7 @@ import { join, resolve } from 'path';
 import { AccountModule } from './account/account.module';
 import { ProductModule } from './product/product.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { DateTimeResolver, EmailAddressResolver } from 'graphql-scalars';
 
 @Module({
   imports: [
@@ -21,6 +22,10 @@ import { MongooseModule } from '@nestjs/mongoose';
           typePaths: [resolve(__dirname, './schemas/*.gql')],
           definitions: {
             path: join(process.cwd(), 'src/graphql.ts'),
+          },
+          resolvers: {
+            DateTime: DateTimeResolver,
+            EmailAddress: EmailAddressResolver,
           },
         };
       },

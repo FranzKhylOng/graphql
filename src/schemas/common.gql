@@ -1,0 +1,19 @@
+scalar Binary
+scalar EmailAddress
+scalar DateTime
+
+input BinaryQueryOperatorInput {
+  eq: Binary
+  ne: Binary
+  in: [Binary!]
+  nin: [Binary!]
+}
+
+input StringQueryOperatorInput {
+  eq: String
+  ne: String
+  in: [String!]
+  nin: [String!]
+  startsWith: String
+  contains: String
+}

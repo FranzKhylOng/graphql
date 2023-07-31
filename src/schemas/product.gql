@@ -50,18 +50,41 @@ input ProductSortInput {
   name: Int
 }
 
-input BinaryQueryOperatorInput {
-  eq: Binary
-  ne: Binary
-  in: [Binary!]
-  nin: [Binary!]
+type Mutation {
+  """
+  Create a product.
+  """
+  createProduct(input: CreateProductInput!): Product! @private
+
+  """
+  Update a product. User can only update own product.
+
+  ## Error Codes
+  	* `BAD_USER_INPUT` - Product not found.
+  	* `BAD_USER_INPUT` - Cannot update product.
+  """
+  updateProduct(input: UpdateProductInput!): Product! @private
+
+  """
+  Delete a product. User can only delete own product.
+
+  ## Error Codes
+  		* `BAD_USER_INPUT` - Product not found.
+  		* `BAD_USER_INPUT` - Cannot delete product.
+  """
+  deleteProduct(input: DeleteProductInput!): Boolean! @private
 }
 
-input StringQueryOperatorInput {
-  eq: String
-  ne: String
-  in: [String!]
-  nin: [String!]
-  startsWith: String
-  contains: String
+type Query {
+  """
+  Returns cursor-based list of products.
+  Forward pagination only.
+   Sorted by name.
+  """
+  products(
+    first: Int = 10
+    after: Binary
+    filter: ProductsFilter
+    sort: ProductSortInput
+  ): ProductConnection!
 }
