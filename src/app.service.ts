@@ -8,8 +8,4 @@ const books = [
 ];
 
 @Injectable()
-export class AppService {
-  getBooks() {
-    return books;
-  }
-}
+export class AppService {}

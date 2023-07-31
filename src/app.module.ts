@@ -2,12 +2,13 @@ import { Module } from '@nestjs/common';
 import { AppService } from './app.service';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { BookResolver } from './resolvers/book.resolver';
 import { join, resolve } from 'path';
 import { AccountModule } from './account/account.module';
 import { ProductModule } from './product/product.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DateTimeResolver, EmailAddressResolver } from 'graphql-scalars';
+import { privateDirectiveTransformer } from './libs/private-directive';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -27,12 +28,15 @@ import { DateTimeResolver, EmailAddressResolver } from 'graphql-scalars';
             DateTime: DateTimeResolver,
             EmailAddress: EmailAddressResolver,
           },
+          schemaDirectives: {
+            private: privateDirectiveTransformer,
+          },
         };
       },
     }),
     AccountModule,
     ProductModule,
   ],
-  providers: [AppService, BookResolver],
+  providers: [AppService, JwtService],
 })
 export class AppModule {}
