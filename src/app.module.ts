@@ -6,9 +6,11 @@ import { BookResolver } from './resolvers/book.resolver';
 import { join, resolve } from 'path';
 import { AccountModule } from './account/account.module';
 import { ProductModule } from './product/product.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
+    MongooseModule.forRoot('mongodb://localhost/nestjs'),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       useFactory: () => {
