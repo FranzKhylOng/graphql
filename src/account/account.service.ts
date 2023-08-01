@@ -1,12 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from './account.model';
+import { User, UserDocument } from './account.model';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AccountService {
-  constructor(@InjectModel(User.name) private model: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private model: Model<User>,
+    private jwtService: JwtService,
+  ) {}
 
   async create(user: User) {
     const saltRounds = 10;
@@ -14,7 +18,7 @@ export class AccountService {
     return await this.model.create({ ...user, password: hashedPassword });
   }
 
-  update(id: string, updates: User) {
+  async update(id: string, updates: User) {
     return this.model.findByIdAndUpdate(id, updates);
   }
 
@@ -28,7 +32,20 @@ export class AccountService {
     return null;
   }
 
-  delete(id: string) {
+  async delete(id: string) {
     this.model.findByIdAndDelete(id);
+  }
+
+  async generateToken(user: UserDocument) {
+    const payload = { username: user.emailAdress, sub: user._id };
+    return this.jwtService.signAsync(payload);
+  }
+
+  async login(email: string, password: string) {
+    const user = await this.model.findOne({ emailAddress: email });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      throw new Error('Invalid credentials');
+    }
+    return user;
   }
 }

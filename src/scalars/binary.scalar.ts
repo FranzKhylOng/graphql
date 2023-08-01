@@ -1,6 +1,6 @@
 import { GraphQLScalarType, Kind, ASTNode } from 'graphql';
 
-export default new GraphQLScalarType({
+export const BinaryScalar = new GraphQLScalarType({
   name: 'Binary',
   description: 'Binary custom scalar type',
   serialize(value): string {
