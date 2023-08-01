@@ -5,7 +5,7 @@ import { jwtConstants } from './constants';
 import { AccountService } from '../account/account.service';
 import { mapSchema, getDirective, MapperKind } from '@graphql-tools/utils';
 
-export class PrivateDirectiveTransformer {
+export class privateDirectiveTransformer {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: AccountService,

@@ -6,9 +6,10 @@ import { AccountModule } from './account/account.module';
 import { ProductModule } from './product/product.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DateTimeResolver, EmailAddressResolver } from 'graphql-scalars';
-import { privateDirectiveTransformer } from './libs/private-directive';
+import { privateDirectiveTransformer } from './libs/privatedirective';
 import { JwtService } from '@nestjs/jwt';
 import { BinaryScalar } from './scalars/binary.scalar';
+import { AccountResolver } from './resolvers/account.resolver';
 
 @Module({
   imports: [
@@ -38,6 +39,6 @@ import { BinaryScalar } from './scalars/binary.scalar';
     AccountModule,
     ProductModule,
   ],
-  providers: [JwtService],
+  providers: [JwtService, AccountResolver],
 })
 export class AppModule {}
