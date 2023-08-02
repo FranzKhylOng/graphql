@@ -10,6 +10,8 @@ import { privateDirectiveTransformerFactory } from './libs/privatedirective';
 import { JwtService } from '@nestjs/jwt';
 import { BinaryScalar } from './scalars/binary.scalar';
 import { AccountResolver } from './resolvers/account.resolver';
+import { ProductResolver } from './resolvers/product.resolver';
+import { Product } from './product/product.model';
 
 @Module({
   imports: [
@@ -41,6 +43,6 @@ import { AccountResolver } from './resolvers/account.resolver';
     AccountModule,
     ProductModule,
   ],
-  providers: [JwtService, AccountResolver],
+  providers: [JwtService, AccountResolver, ProductResolver],
 })
 export class AppModule {}
