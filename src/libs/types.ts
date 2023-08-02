@@ -7,3 +7,11 @@ export type UserType = {
   password: string;
   id?: Binary;
 };
+
+export type Product = {
+  name: string;
+  price: number;
+  emailAddress: string;
+  description: string;
+  id?: Binary;
+};

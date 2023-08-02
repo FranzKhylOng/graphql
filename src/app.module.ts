@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Inject, OnModuleInit } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join, resolve } from 'path';
@@ -6,7 +6,7 @@ import { AccountModule } from './account/account.module';
 import { ProductModule } from './product/product.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { DateTimeResolver, EmailAddressResolver } from 'graphql-scalars';
-import { privateDirectiveTransformer } from './libs/privatedirective';
+import { privateDirectiveTransformerFactory } from './libs/privatedirective';
 import { JwtService } from '@nestjs/jwt';
 import { BinaryScalar } from './scalars/binary.scalar';
 import { AccountResolver } from './resolvers/account.resolver';
@@ -16,9 +16,10 @@ import { AccountResolver } from './resolvers/account.resolver';
     MongooseModule.forRoot('mongodb://localhost/nestjs'),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      useFactory: () => {
-        // transformations
-
+      inject: [JwtService],
+      useFactory: (jwtService: JwtService) => {
+        const privateDirectiveTransformer =
+          privateDirectiveTransformerFactory(jwtService);
         return {
           playground: true,
           typePaths: [resolve(__dirname, './schemas/*.gql')],
@@ -30,8 +31,9 @@ import { AccountResolver } from './resolvers/account.resolver';
             EmailAddress: EmailAddressResolver,
             Binary: BinaryScalar,
           },
-          schemaDirectives: {
-            private: privateDirectiveTransformer,
+          transformSchema(schema) {
+            privateDirectiveTransformer(schema, 'private');
+            return schema;
           },
         };
       },

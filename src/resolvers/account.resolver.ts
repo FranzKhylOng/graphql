@@ -33,21 +33,11 @@ export class AccountResolver {
 
   @Query('me')
   async me(@Context() context: any) {
-    const authHeader = context.req.headers.authorization;
-    if (!authHeader) {
-      throw new Error('Authorization header not found');
-    }
-
-    const [, token] = authHeader.split(' ');
-    const decodedToken = this.jwtService.decode(token) as any;
-
-    if (!decodedToken?.emailAddress) {
-      throw new Error('Invalid token');
-    }
-
     const user = await this.accountService.retrieve({
-      emailAddress: decodedToken.emailAddress,
+      emailAddress: context.user,
     });
+    console.log('test');
+    console.log(user);
     if (!user) {
       throw new Error('User not found');
     }

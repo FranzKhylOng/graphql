@@ -1,17 +1,8 @@
 import { defaultFieldResolver } from 'graphql';
-import { UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
-import { AccountService } from '../account/account.service';
 import { mapSchema, getDirective, MapperKind } from '@graphql-tools/utils';
 
-export class privateDirectiveTransformer {
-  constructor(
-    private readonly jwtService: JwtService,
-    private readonly userService: AccountService,
-  ) {}
-
-  privateDirectiveTransformer(schema, directiveName) {
+export function privateDirectiveTransformerFactory(JwtService) {
+  return (schema, directiveName) => {
     return mapSchema(schema, {
       [MapperKind.OBJECT_FIELD]: (fieldConfig) => {
         const privateDirective = getDirective(
@@ -21,7 +12,7 @@ export class privateDirectiveTransformer {
         )?.[0];
         if (privateDirective) {
           const { resolve = defaultFieldResolver } = fieldConfig;
-          fieldConfig.resolve = this.getResolveFunction(resolve);
+          fieldConfig.resolve = getResolveFunction(resolve, JwtService);
           return fieldConfig;
         }
       },
@@ -36,40 +27,37 @@ export class privateDirectiveTransformer {
           for (const fieldName in objectConfig.getFields()) {
             const field = objectConfig.getFields()[fieldName];
             const { resolve = defaultFieldResolver } = field;
-            field.resolve = this.getResolveFunction(resolve);
+            field.resolve = getResolveFunction(resolve, JwtService);
           }
           return objectConfig;
         }
       },
     });
-  }
-
-  private getResolveFunction(defaultResolver) {
-    return async (...args) => {
-      const [, , context] = args;
-      const token = this.extractTokenFromHeader(context.req);
-      if (!token) {
-        throw new UnauthorizedException();
-      }
-      try {
-        const payload = await this.jwtService.verifyAsync(token, {
-          secret: jwtConstants.secret,
-        });
-        const user = await this.userService.retrieve({ id: payload.sub });
-        if (!user) {
-          throw new UnauthorizedException();
-        }
-        context.req.user = user; // Set the user object in the request
-      } catch {
-        throw new UnauthorizedException();
-      }
-      return defaultResolver.apply(this, args);
-    };
-  }
-
-  private extractTokenFromHeader(request: any): string | undefined {
-    const headers = request.headers as Record<string, string>;
-    const [type, token] = headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
-  }
+  };
 }
+
+const getResolveFunction = (defaultResolver, JwtService) => {
+  return async (...args) => {
+    const [, , context] = args;
+    const authHeader = context.req.headers.authorization;
+    if (!authHeader) {
+      throw new Error('Authorization header not found');
+    }
+
+    const [, token] = authHeader.split(' ');
+    try {
+      const decodedToken = JwtService.verify(token); // Verify the token
+      context.user = decodedToken.emailAddress; // Set the user object in the request
+    } catch (err) {
+      throw new Error('Invalid token');
+    }
+
+    return defaultResolver.apply(this, args);
+  };
+};
+
+// const extractTokenFromHeader = (request: any): string | undefined => {
+//   const headers = request.headers as Record<string, string>;
+//   const [type, token] = headers.authorization?.split(' ') ?? [];
+//   return type === 'Bearer' ? token : undefined;
+// };

@@ -23,10 +23,7 @@ export class AccountService {
     return this.model.findByIdAndUpdate(id, updates);
   }
 
-  async retrieve(params: { id?: string; emailAddress?: string }) {
-    if (params.id) {
-      return this.model.findById(params.id);
-    }
+  async retrieve(params: { emailAddress: string }) {
     if (params.emailAddress) {
       return this.model.findOne({ emailAddress: params.emailAddress });
     }
