@@ -12,7 +12,7 @@ export class AccountResolver {
   @Mutation('signUp')
   async signUp(@Args('input') signUpInput: any) {
     const existingUser = await this.accountService.retrieve({
-      username: signUpInput.emailAddress,
+      emailAddress: signUpInput.emailAddress,
     });
     if (existingUser) {
       throw new Error('BAD_USER_INPUT');

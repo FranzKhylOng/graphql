@@ -22,12 +22,19 @@ export class AccountService {
     return this.model.findByIdAndUpdate(id, updates);
   }
 
-  async retrieve(params: { id?: string; username?: string }) {
+  async retrieve(params: {
+    id?: string;
+    username?: string;
+    emailAddress?: string;
+  }) {
     if (params.id) {
       return this.model.findById(params.id);
     }
     if (params.username) {
       return this.model.findOne({ username: params.username });
+    }
+    if (params.emailAddress) {
+      return this.model.findOne({ emailAdress: params.emailAddress });
     }
     return null;
   }
