@@ -93,7 +93,6 @@ export interface IQuery {
 
 export interface Authentication {
     token: string;
-    user: Account;
 }
 
 export interface Product extends Node {

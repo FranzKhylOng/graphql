@@ -6,7 +6,6 @@ directive @private on OBJECT | FIELD_DEFINITION
 
 type Authentication {
   token: String!
-  user: Account!
 }
 
 input BinaryQueryOperatorInput {

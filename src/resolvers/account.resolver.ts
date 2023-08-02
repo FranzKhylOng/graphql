@@ -1,6 +1,7 @@
 import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
 import { AccountService } from '../account/account.service';
 import { JwtService } from '@nestjs/jwt';
+import { SignUpInput, AuthenticateInput } from 'src/graphql';
 
 @Resolver('Account')
 export class AccountResolver {
@@ -10,7 +11,7 @@ export class AccountResolver {
   ) {}
 
   @Mutation('signUp')
-  async signUp(@Args('input') signUpInput: any) {
+  async signUp(@Args('input') signUpInput: SignUpInput) {
     const existingUser = await this.accountService.retrieve({
       emailAddress: signUpInput.emailAddress,
     });
@@ -18,24 +19,16 @@ export class AccountResolver {
       throw new Error('BAD_USER_INPUT');
     }
     const user = await this.accountService.create(signUpInput);
-    const token = await this.accountService.generateToken(user);
-    return {
-      token,
-      user,
-    };
+    return this.accountService.generateToken(user);
   }
 
   @Mutation('authenticate')
-  async authenticate(@Args('input') authenticateInput: any) {
+  async authenticate(@Args('input') authenticateInput: AuthenticateInput) {
     const user = await this.accountService.login(
       authenticateInput.emailAddress,
       authenticateInput.password,
     );
-    const token = await this.accountService.generateToken(user);
-    return {
-      token,
-      user,
-    };
+    return this.accountService.generateToken(user);
   }
 
   @Query('me')
@@ -48,12 +41,12 @@ export class AccountResolver {
     const [, token] = authHeader.split(' ');
     const decodedToken = this.jwtService.decode(token) as any;
 
-    if (!decodedToken?.username) {
+    if (!decodedToken?.emailAddress) {
       throw new Error('Invalid token');
     }
 
     const user = await this.accountService.retrieve({
-      username: decodedToken.username,
+      emailAddress: decodedToken.emailAddress,
     });
     if (!user) {
       throw new Error('User not found');
