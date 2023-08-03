@@ -17,8 +17,6 @@ import { ProductResolver } from './resolvers/product.resolver';
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       useFactory: () => {
-        const privateDirectiveTransformer =
-          privateDirectiveTransformerFactory();
         return {
           playground: true,
           typePaths: [resolve(__dirname, './schemas/*.gql')],
@@ -31,7 +29,7 @@ import { ProductResolver } from './resolvers/product.resolver';
             Binary: BinaryScalar,
           },
           transformSchema(schema) {
-            return privateDirectiveTransformer(schema, 'private');
+            return privateDirectiveTransformerFactory(schema, 'private');
           },
         };
       },
