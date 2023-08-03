@@ -17,10 +17,7 @@ export class ProductResolver {
 
   @Mutation('updateProduct')
   async updateProduct(@Args('input') updateProductInput: UpdateProductInput) {
-    await this.productService.update(
-      updateProductInput.id,
-      updateProductInput.body,
-    );
+    await this.productService.update(updateProductInput.id, updateProductInput);
   }
 
   @Mutation('deleteProduct')

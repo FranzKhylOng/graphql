@@ -9,9 +9,11 @@ export type UserType = {
 };
 
 export type Product = {
+  id: Binary;
   name: string;
   price: number;
-  emailAddress: string;
+  cursor: string;
   description: string;
-  id?: Binary;
+  createdAt: Date;
+  updatedAt: Date;
 };

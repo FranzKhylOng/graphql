@@ -33,7 +33,8 @@
     "mongoose": "^7.4.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
-    "ts-morph": "^19.0.0"
+    "ts-morph": "^19.0.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
