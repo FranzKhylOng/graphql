@@ -1,10 +1,11 @@
 import { defaultFieldResolver } from 'graphql';
 import { mapSchema, getDirective, MapperKind } from '@graphql-tools/utils';
+import { JwtService } from '@nestjs/jwt';
 
-export function privateDirectiveTransformerFactory(JwtService) {
+export function privateDirectiveTransformerFactory() {
   return (schema, directiveName) => {
     return mapSchema(schema, {
-      [MapperKind.OBJECT_FIELD]: (fieldConfig) => {
+      [MapperKind.QUERY_ROOT_FIELD]: (fieldConfig) => {
         const privateDirective = getDirective(
           schema,
           fieldConfig,
@@ -12,7 +13,28 @@ export function privateDirectiveTransformerFactory(JwtService) {
         )?.[0];
         if (privateDirective) {
           const { resolve = defaultFieldResolver } = fieldConfig;
-          fieldConfig.resolve = getResolveFunction(resolve, JwtService);
+
+          fieldConfig.resolve = async function (source, args, context, info) {
+            const authHeader = context.req.headers.authorization;
+
+            if (!authHeader) {
+              throw new Error('Authorization header not found');
+            }
+
+            const [, token] = authHeader.split(' ');
+            try {
+              const jwt = new JwtService({
+                secret: 'secretcodeshhh',
+              });
+              const decodedToken = jwt.verify(token); // Verify the token
+              context.user = decodedToken.emailAddress; // Set the user object in the request
+
+              return await resolve(source, args, context, info);
+            } catch (err) {
+              throw new Error('Invalid token');
+            }
+          };
+
           return fieldConfig;
         }
       },
@@ -27,7 +49,7 @@ export function privateDirectiveTransformerFactory(JwtService) {
           for (const fieldName in objectConfig.getFields()) {
             const field = objectConfig.getFields()[fieldName];
             const { resolve = defaultFieldResolver } = field;
-            field.resolve = getResolveFunction(resolve, JwtService);
+            field.resolve = getResolveFunction(resolve);
           }
           return objectConfig;
         }
@@ -36,23 +58,30 @@ export function privateDirectiveTransformerFactory(JwtService) {
   };
 }
 
-const getResolveFunction = (defaultResolver, JwtService) => {
+const getResolveFunction = (defaultResolver) => {
   return async (...args) => {
     const [, , context] = args;
+    console.log('RESOLVE FIELD', context.req);
+
     const authHeader = context.req.headers.authorization;
+
     if (!authHeader) {
       throw new Error('Authorization header not found');
     }
 
     const [, token] = authHeader.split(' ');
     try {
-      const decodedToken = JwtService.verify(token); // Verify the token
+      const jwt = new JwtService({
+        secret: 'secretcodeshhh',
+      });
+      const decodedToken = jwt.verify(token); // Verify the token
       context.user = decodedToken.emailAddress; // Set the user object in the request
+
+      // return await defaultFieldResolver(...args)
+      return await defaultResolver.apply(this, args);
     } catch (err) {
       throw new Error('Invalid token');
     }
-
-    return defaultResolver.apply(this, args);
   };
 };
 
