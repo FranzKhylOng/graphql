@@ -20,7 +20,7 @@ export class ProductService {
     return createdProduct.toObject();
   }
 
-  async update(id: Binary, updates: Pick<UpdateProductInput, 'body'>) {
+  async update(id: Binary, updates: UpdateProductInput['body']) {
     const bufferId = Buffer.from(id, 'base64');
     const updatedProduct = await this.model.findByIdAndUpdate(
       bufferId,

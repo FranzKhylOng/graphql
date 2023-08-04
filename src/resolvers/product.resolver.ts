@@ -26,7 +26,7 @@ export class ProductResolver {
   async updateProduct(@Args('input') updateProductInput: UpdateProductInput) {
     const product = await this.productService.update(
       updateProductInput.id,
-      updateProductInput,
+      updateProductInput.body,
     );
 
     const { _id, ...rest } = product;
