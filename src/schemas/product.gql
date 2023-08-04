@@ -25,6 +25,7 @@ type ProductEdge {
 input CreateProductInput {
   name: String!
   description: String!
+  owner: Binary!
 }
 
 input UpdateProductInput {

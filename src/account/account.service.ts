@@ -25,7 +25,9 @@ export class AccountService {
 
   async retrieve(params: { emailAddress: string }) {
     if (params.emailAddress) {
-      return this.model.findOne({ emailAddress: params.emailAddress });
+      return this.model
+        .findOne({ emailAddress: params.emailAddress }, { __v: 0 })
+        .lean();
     }
     return null;
   }

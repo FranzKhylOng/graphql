@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
 import { AccountService } from '../account/account.service';
 import { JwtService } from '@nestjs/jwt';
@@ -37,9 +38,15 @@ export class AccountResolver {
       emailAddress: context.user,
     });
 
+    const { _id, password, ...rest } = user;
+
     if (!user) {
       throw new Error('User not found');
     }
-    return user;
+
+    return {
+      ...rest,
+      id: Buffer.from(_id.toString()),
+    };
   }
 }

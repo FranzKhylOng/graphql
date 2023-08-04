@@ -12,7 +12,7 @@ export class ProductResolver {
 
   @Mutation('createProduct')
   async createProduct(@Args('input') createProductInput: CreateProductInput) {
-    await this.productService.create(createProductInput);
+    return this.productService.create(createProductInput);
   }
 
   @Mutation('updateProduct')

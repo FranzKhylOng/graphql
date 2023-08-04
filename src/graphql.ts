@@ -39,6 +39,7 @@ export interface StringQueryOperatorInput {
 export interface CreateProductInput {
     name: string;
     description: string;
+    owner: Binary;
 }
 
 export interface UpdateProductInput {
