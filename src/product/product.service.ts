@@ -16,13 +16,20 @@ export class ProductService {
   constructor(@InjectModel('Product') private model: Model<Product>) {}
 
   async create(product: CreateProductInput) {
-    return this.model.create(product);
+    const createdProduct = await this.model.create(product);
+    return createdProduct.toObject();
   }
 
   async update(id: Binary, updates: Pick<UpdateProductInput, 'body'>) {
-    return this.model.findByIdAndUpdate(id, updates, {
-      new: true,
-    });
+    const bufferId = Buffer.from(id, 'base64');
+    const updatedProduct = await this.model.findByIdAndUpdate(
+      bufferId,
+      updates,
+      {
+        new: true,
+      },
+    );
+    return updatedProduct.toObject();
   }
 
   retrieve(id: Binary) {

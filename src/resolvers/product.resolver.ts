@@ -12,12 +12,29 @@ export class ProductResolver {
 
   @Mutation('createProduct')
   async createProduct(@Args('input') createProductInput: CreateProductInput) {
-    return this.productService.create(createProductInput);
+    const product = await this.productService.create(createProductInput);
+
+    const { _id, ...rest } = product;
+
+    return {
+      ...rest,
+      id: Buffer.from(_id.toString()),
+    };
   }
 
   @Mutation('updateProduct')
   async updateProduct(@Args('input') updateProductInput: UpdateProductInput) {
-    await this.productService.update(updateProductInput.id, updateProductInput);
+    const product = await this.productService.update(
+      updateProductInput.id,
+      updateProductInput,
+    );
+
+    const { _id, ...rest } = product;
+
+    return {
+      ...rest,
+      id: Buffer.from(_id.toString()),
+    };
   }
 
   @Mutation('deleteProduct')
