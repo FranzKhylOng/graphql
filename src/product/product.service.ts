@@ -36,8 +36,9 @@ export class ProductService {
     return this.model.findById(id);
   }
 
-  delete(id: DeleteProductInput['id']) {
-    this.model.findByIdAndDelete(id);
+  async delete(id: DeleteProductInput['id']): Promise<boolean> {
+    const result = await this.model.findByIdAndDelete(id);
+    return !!result;
   }
 
   async getProducts(

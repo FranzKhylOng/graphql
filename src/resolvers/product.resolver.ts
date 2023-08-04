@@ -38,7 +38,9 @@ export class ProductResolver {
   }
 
   @Mutation('deleteProduct')
-  async deleteProduct(@Args('input') deleteProductInput: DeleteProductInput) {
-    this.productService.delete(deleteProductInput.id);
+  async deleteProduct(
+    @Args('input') deleteProductInput: DeleteProductInput,
+  ): Promise<boolean> {
+    return this.productService.delete(deleteProductInput.id);
   }
 }
