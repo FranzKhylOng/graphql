@@ -123,12 +123,7 @@ export class ProductService {
 
     const hasNextPage = products.length > first;
     const edges: ProductEdge[] = products.slice(0, first).map((product) => {
-      console.log(`Product name: ${product.name}`);
-      console.log(`Product createdAt: ${product.createdAt}`);
-      const cursor = generateCursor(product.name, product.createdAt).toString(
-        'base64',
-      );
-      console.log(`Generated cursor: ${cursor}`);
+      const cursor = generateCursor(product.name, product.createdAt);
       return {
         cursor,
         node: product,
