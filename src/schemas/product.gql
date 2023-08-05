@@ -23,8 +23,8 @@ type ProductEdge {
 }
 
 input AccountInput {
-  id: Binary!;
-  emailAddress: string!;
+  id: Binary!
+  emailAddress: String!
 }
 
 input CreateProductInput {

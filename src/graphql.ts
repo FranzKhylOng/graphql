@@ -37,7 +37,8 @@ export interface StringQueryOperatorInput {
 }
 
 export interface AccountInput {
-    id: string;
+    id: Binary;
+    emailAddress: string;
 }
 
 export interface CreateProductInput {
