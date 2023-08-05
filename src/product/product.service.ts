@@ -129,6 +129,8 @@ export class ProductService {
       });
     }
 
+    query = query.populate('owner');
+
     const products = await query.limit(first + 1).exec();
 
     const hasNextPage = products.length > first;
@@ -147,7 +149,6 @@ export class ProductService {
 
     return { edges, pageInfo };
   }
-  y;
 }
 
 type Argument = string | Date;
