@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { User } from './account.model';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Binary } from '../graphql';
 import { UserType } from '../libs/types';
 
 @Injectable()
@@ -30,6 +31,21 @@ export class AccountService {
         .lean();
     }
     return null;
+  }
+
+  async retrieveById(id: Binary) {
+    // Convert the Binary type id to string or number depending on your database id type
+    const ownerId = Buffer.from(id, 'base64').toString();
+
+    const owner = await this.model.findById(ownerId);
+    if (!owner) {
+      throw new Error(`Owner with id ${ownerId} not found`);
+    }
+    return owner;
+  }
+
+  async retrieveByEmail(emailAddress: string) {
+    return this.model.findOne({ emailAddress });
   }
 
   async delete(id: string) {

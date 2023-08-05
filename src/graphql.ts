@@ -36,10 +36,14 @@ export interface StringQueryOperatorInput {
     contains?: Nullable<string>;
 }
 
+export interface AccountInput {
+    id: string;
+}
+
 export interface CreateProductInput {
     name: string;
     description: string;
-    owner: Binary;
+    owner: AccountInput;
 }
 
 export interface UpdateProductInput {

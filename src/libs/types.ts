@@ -32,3 +32,14 @@ export type ProductConnection = {
   edges: ProductEdge[];
   pageInfo: PageInfo;
 };
+
+export type AccountInput = {
+  id: Binary;
+  emailAddress: string;
+};
+
+export type CreateProductInput = {
+  name: string;
+  description: string;
+  owner: AccountInput;
+};

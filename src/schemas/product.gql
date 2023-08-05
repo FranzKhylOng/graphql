@@ -22,10 +22,15 @@ type ProductEdge {
   node: Product!
 }
 
+input AccountInput {
+  id: Binary!;
+  emailAddress: string!;
+}
+
 input CreateProductInput {
   name: String!
   description: String!
-  owner: Binary!
+  owner: AccountInput!
 }
 
 input UpdateProductInput {

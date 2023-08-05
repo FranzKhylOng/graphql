@@ -15,14 +15,24 @@ import {
   ProductsFilter,
   Binary,
 } from '../graphql';
+import { AccountService } from '../account/account.service';
 
 @Injectable()
 export class ProductService {
-  constructor(@InjectModel('Product') private model: Model<Product>) {}
+  constructor(
+    @InjectModel('Product') private model: Model<Product>,
+    private accountService: AccountService,
+  ) {}
 
-  async create(product: CreateProductInput) {
-    const createdProduct = await this.model.create(product);
-    return createdProduct.toObject();
+  async create(createProductInput: CreateProductInput) {
+    const owner = await this.accountService.retrieveById(
+      createProductInput.owner.id,
+    );
+    const createdProduct = await this.model.create({
+      ...createProductInput,
+      owner: owner, // replace owner._id with owner
+    });
+    return createdProduct.toObject({ virtuals: true }); // add virtuals: true to include virtual properties
   }
 
   async update(id: Binary, updates: UpdateProductInput['body']) {
