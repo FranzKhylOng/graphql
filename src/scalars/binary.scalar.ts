@@ -7,7 +7,13 @@ export const BinaryScalar = new GraphQLScalarType({
     if (value instanceof Buffer) {
       return value.toString('base64url');
     }
-    throw Error('GraphQL Binary scalar expected buffer');
+    if (typeof value === 'string') {
+      // Check if the string could be a base64 string
+      if (/^[A-Za-z0-9+/=]*$/.test(value)) {
+        return value;
+      }
+    }
+    throw Error('GraphQL Binary scalar expected buffer or base64 string');
   },
 
   parseValue(value): Buffer {

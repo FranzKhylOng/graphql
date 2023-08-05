@@ -8,8 +8,6 @@ export class Product {
   price: number;
   @Prop()
   description: string;
-  @Prop()
-  cursor: string;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

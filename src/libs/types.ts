@@ -17,3 +17,18 @@ export type Product = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type ProductEdge = {
+  cursor: Binary;
+  node: Product;
+};
+
+export type PageInfo = {
+  hasNextPage: boolean;
+  endCursor: Binary;
+};
+
+export type ProductConnection = {
+  edges: ProductEdge[];
+  pageInfo: PageInfo;
+};

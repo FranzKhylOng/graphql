@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Product } from '../libs/types';
+import {
+  Product,
+  ProductEdge,
+  PageInfo,
+  ProductConnection,
+} from '../libs/types';
 import {
   CreateProductInput,
   UpdateProductInput,
@@ -41,59 +46,121 @@ export class ProductService {
     return !!result;
   }
 
-  async getProducts(
-    first = 10,
-    after: Buffer | null,
-    filter: ProductsFilter | null,
-    sort: ProductSortInput | null,
-  ): Promise<any> {
+  async getProducts({
+    first,
+    after,
+    filter,
+    sort,
+  }: {
+    first: number;
+    after: string;
+    filter: ProductsFilter;
+    sort: ProductSortInput;
+  }): Promise<ProductConnection> {
     let query = this.model.find();
 
+    // Apply filters
     if (filter) {
-      query = query.where(filter);
-    }
-    if (after) {
-      const afterNumber = parseInt(after.toString('utf8'), 10);
-      query = query.where('cursor').gt(afterNumber);
-    }
-    if (sort) {
-      const mongooseSort = {};
-      for (const key in sort) {
-        mongooseSort[key] = sort[key] === 1 ? 'asc' : 'desc';
+      if (filter.id) {
+        if (filter.id.eq) {
+          query = query.where('_id', Buffer.from(filter.id.eq, 'base64'));
+        }
+        if (filter.id.ne) {
+          query = query.where('_id').ne(Buffer.from(filter.id.ne, 'base64'));
+        }
+        if (filter.id.in) {
+          const inIds = filter.id.in.map((id) => Buffer.from(id, 'base64'));
+          query = query.where('_id').in(inIds);
+        }
+        if (filter.id.nin) {
+          const ninIds = filter.id.nin.map((id) => Buffer.from(id, 'base64'));
+          query = query.where('_id').nin(ninIds);
+        }
       }
-      query = query.sort(mongooseSort);
+      if (filter.name) {
+        if (filter.name.eq) {
+          query = query.where('name', filter.name.eq);
+        }
+        if (filter.name.ne) {
+          query = query.where('name').ne(filter.name.ne);
+        }
+        if (filter.name.in) {
+          query = query.where('name').in(filter.name.in);
+        }
+        if (filter.name.nin) {
+          query = query.where('name').nin(filter.name.nin);
+        }
+        if (filter.name.startsWith) {
+          query = query.where('name', new RegExp('^' + filter.name.startsWith));
+        }
+        if (filter.name.contains) {
+          query = query.where('name', new RegExp(filter.name.contains));
+        }
+      }
     }
-    query = query.limit(first);
 
-    const items = await query.exec();
-    const totalCount = await this.model.countDocuments();
+    // Apply sorting
+    if (sort) {
+      if (sort && typeof sort.name === 'number') {
+        query = query.sort({ name: 1, createdAt: 1 });
+      }
+    }
 
-    const startCursor = items.length > 0 ? items[0].cursor : null;
-    const endCursor = items.length > 0 ? items[items.length - 1].cursor : null;
+    // If 'after' cursor is provided, adjust the query to start after this cursor
+    if (after) {
+      const afterBuffer = Buffer.from(after, 'base64');
+      // Assuming cursor is based on name and created at date
+      const [name, createdAt] = afterBuffer.toString('utf8').split('_');
+      query = query.where({
+        $or: [
+          { name: { $gt: name } },
+          { name, createdAt: { $gt: new Date(Number(createdAt)) } },
+        ],
+      });
+    }
 
-    const hasNextPage = items.length === first && endCursor !== null;
+    const products = await query.limit(first + 1).exec();
 
-    const formattedProducts = items.map((item) => ({
-      node: {
-        id: item._id,
-        name: item.name,
-        description: item.description,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
-      },
-      cursor: item.cursor,
-    }));
+    const hasNextPage = products.length > first;
+    const edges: ProductEdge[] = products.slice(0, first).map((product) => {
+      console.log(`Product name: ${product.name}`);
+      console.log(`Product createdAt: ${product.createdAt}`);
+      const cursor = generateCursor(product.name, product.createdAt).toString(
+        'base64',
+      );
+      console.log(`Generated cursor: ${cursor}`);
+      return {
+        cursor,
+        node: product,
+      };
+    });
 
-    const pageInfo = {
-      startCursor,
-      endCursor,
+    const pageInfo: PageInfo = {
       hasNextPage,
-      totalCount,
+      endCursor: hasNextPage ? edges[edges.length - 1].cursor : null,
     };
 
-    return {
-      edges: formattedProducts,
-      pageInfo,
-    };
+    return { edges, pageInfo };
   }
+  y;
+}
+
+type Argument = string | Date;
+export function generateCursor(...args: Argument[]): Buffer {
+  return Buffer.concat(
+    args.map((arg: Argument) => {
+      if (arg === null || arg === undefined) {
+        throw new Error('null or undefined argument');
+      }
+      if (arg instanceof Date) {
+        const buf = Buffer.alloc(8, 0);
+        buf.writeBigUInt64BE(BigInt(arg.getTime()));
+        return buf;
+      }
+      if (typeof arg === 'string') {
+        return Buffer.from(arg.substring(0, 8).padEnd(8, ' '), 'utf8');
+      }
+      throw new Error('argument type is not supported');
+    }),
+  );
 }
