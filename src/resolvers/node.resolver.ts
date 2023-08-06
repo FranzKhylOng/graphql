@@ -4,6 +4,7 @@ import { ProductService } from '../product/product.service';
 import { User } from '../account/account.model';
 import { Product } from '../product/product.model';
 
+//didn't get to make it work for product in time
 @Resolver('NodeResult')
 export class NodeResolver {
   constructor(

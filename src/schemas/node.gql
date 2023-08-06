@@ -1,11 +1,12 @@
 interface Node {
   id: Binary!
 }
+
 union NodeResult = Account | Product
 
 type Query {
   """
-  Returns an object given by its ID.
+  It was modified because this was how I interpreted Query node, but realized later on it was supposed to behave differently
   """
   node(id: Binary!): NodeResult!
 }
