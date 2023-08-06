@@ -34,7 +34,6 @@ export class AccountService {
   }
 
   async retrieveById(id: Binary) {
-    // Convert the Binary type id to string or number depending on your database id type
     console.log(id);
     const ownerId = Buffer.from(id, 'base64').toString();
     console.log(ownerId);

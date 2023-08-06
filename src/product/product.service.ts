@@ -32,7 +32,11 @@ export class ProductService {
       ...createProductInput,
       owner: ownerAccount,
     });
-    return createdProduct.toObject({ virtuals: true }); // add virtuals: true to include virtual properties
+    const populatedProduct = await this.model
+      .findById(createdProduct._id)
+      .populate('owner')
+      .exec();
+    return populatedProduct.toObject({ virtuals: true });
   }
 
   async update(id: Binary, updates: UpdateProductInput['body']) {
@@ -69,7 +73,6 @@ export class ProductService {
   }): Promise<ProductConnection> {
     let query = this.model.find();
 
-    // Apply filters
     if (filter) {
       if (filter.id) {
         if (filter.id.eq) {
@@ -109,7 +112,6 @@ export class ProductService {
       }
     }
 
-    // Apply sorting
     if (sort) {
       const sortString: string[] = [];
 
@@ -142,7 +144,6 @@ export class ProductService {
       }
     }
 
-    // If 'after' cursor is provided, adjust the query to start after this cursor
     if (after) {
       const decodedJson = Buffer.from(after, 'base64').toString('utf8');
       const structuredData: Array<{ type: string; value: string | number }> =
@@ -197,7 +198,6 @@ export class ProductService {
 type Argument = string | Date;
 
 export function generateCursor(...args: Argument[]): string {
-  // Create a structured data representation from the arguments
   const structuredData: Array<{ type: string; value: string | number }> =
     args.map((arg: Argument) => {
       if (arg instanceof Date) {
@@ -209,10 +209,8 @@ export function generateCursor(...args: Argument[]): string {
       throw new Error('Unsupported argument type');
     });
 
-  // Convert the structured data to a JSON string
   const jsonString = JSON.stringify(structuredData);
 
-  // Encode the JSON string in base64
   const base64Encoded = Buffer.from(jsonString).toString('base64');
 
   return base64Encoded;

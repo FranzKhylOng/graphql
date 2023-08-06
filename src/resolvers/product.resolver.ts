@@ -30,7 +30,9 @@ export class ProductResolver {
       updateProductInput.id,
       updateProductInput.body,
     );
-
+    if (!product) {
+      throw new Error('BAD_USER_INPUT: Product not found.');
+    }
     const { _id, ...rest } = product;
 
     return {
