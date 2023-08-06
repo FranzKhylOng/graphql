@@ -114,11 +114,27 @@ export class ProductService {
       const sortString: string[] = [];
 
       if (sort.name) {
-        sortString.push(sort.name === 1 ? 'name' : '-name');
+        if (sort.name === 1) {
+          sortString.push('name');
+        } else if (sort.name === -1) {
+          sortString.push('-name');
+        } else {
+          throw new Error(
+            'Invalid sort value for "name". Only 1 (ascending) or -1 (descending) are allowed.',
+          );
+        }
       }
 
       if (sort.createdAt) {
-        sortString.push(sort.createdAt === 1 ? 'createdAt' : '-createdAt');
+        if (sort.createdAt === 1) {
+          sortString.push('createdAt');
+        } else if (sort.createdAt === -1) {
+          sortString.push('-createdAt');
+        } else {
+          throw new Error(
+            'Invalid sort value for "createdAt". Only 1 (ascending) or -1 (descending) are allowed.',
+          );
+        }
       }
 
       if (sortString.length) {
