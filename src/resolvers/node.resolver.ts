@@ -1,42 +1,46 @@
-import { Query, Args, Resolver } from '@nestjs/graphql';
-import { ProductService } from '../product/product.service';
+import { Resolver, Query, Args, ResolveField, Parent } from '@nestjs/graphql';
 import { AccountService } from '../account/account.service';
-import { Product, Account, Binary } from 'src/graphql';
+import { ProductService } from '../product/product.service';
+import { User } from '../account/account.model';
+import { Product } from '../product/product.model';
 
-@Resolver()
+@Resolver('NodeResult') // Using Account as a placeholder.
 export class NodeResolver {
   constructor(
-    private productService: ProductService,
-    private accountService: AccountService,
+    private readonly accountService: AccountService,
+    private readonly productService: ProductService,
   ) {}
 
-  @Query('node')
-  async node(@Args('id') id: Binary): Promise<Product | Account> {
-    let entity: Product | Account;
-
-    // Handle the product
-    const productDoc = await this.productService.retrieve(id);
-    if (productDoc) {
-      const productData = productDoc.toObject();
-      if (productData._id && !productData.id) {
-        productData.id = productData._id; // Convert _id to id
-        delete productData._id; // Remove the _id property if needed
-      }
-    }
-    // Handle the account
-    if (!entity) {
-      const accountDoc = await this.accountService.retrieveById(id);
-      if (accountDoc) {
-        entity = accountDoc.toObject() as Account;
-        // We're directly casting it to Account since we're expecting Mongoose to provide createdAt and updatedAt
-      }
+  @Query(() => User, { name: 'node' }) // Again, User is a placeholder.
+  async getNode(
+    @Args('id', { type: () => String }) id: string,
+  ): Promise<User | Product> {
+    // Try to retrieve an account by the given ID
+    console.log('getNode resolver called with ID:', id);
+    const account = await this.accountService.retrieveById(id);
+    if (account) {
+      return account;
     }
 
-    // If still not found, throw an error
-    if (!entity) {
-      throw new Error('Entity not found');
+    // If not found, try to retrieve a product by the given ID
+    // NOTE: The method name 'retrieveProductById' is assumed and might need adjustment
+    const product = await this.productService.retrieve(id);
+    if (product) {
+      return product as Product;
     }
 
-    return entity;
+    // If neither account nor product is found, throw an error
+    throw new Error('Entity not found for the provided ID.');
+  }
+
+  @ResolveField()
+  async __resolveType(obj: User | Product) {
+    if ('emailAddress' in obj) {
+      return 'Account';
+    }
+    if ('price' in obj) {
+      return 'Product';
+    }
+    return null; // GraphQLError is thrown if no type can be resolved
   }
 }

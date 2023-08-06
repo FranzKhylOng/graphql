@@ -10,6 +10,7 @@ import { privateDirectiveTransformerFactory } from './libs/privatedirective';
 import { BinaryScalar } from './scalars/binary.scalar';
 import { AccountResolver } from './resolvers/account.resolver';
 import { ProductResolver } from './resolvers/product.resolver';
+import { NodeResolver } from './resolvers/node.resolver';
 
 @Module({
   imports: [
@@ -37,6 +38,6 @@ import { ProductResolver } from './resolvers/product.resolver';
     AccountModule,
     ProductModule,
   ],
-  providers: [AccountResolver, ProductResolver],
+  providers: [AccountResolver, ProductResolver, NodeResolver],
 })
 export class AppModule {}

@@ -16,6 +16,7 @@ export type Product = {
   description: string;
   createdAt: Date;
   updatedAt: Date;
+  owner: UserType;
 };
 
 export type ProductEdge = {

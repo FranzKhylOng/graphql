@@ -35,9 +35,11 @@ export class AccountService {
 
   async retrieveById(id: Binary) {
     // Convert the Binary type id to string or number depending on your database id type
+    console.log(id);
     const ownerId = Buffer.from(id, 'base64').toString();
-
-    const owner = await this.model.findById(ownerId);
+    console.log(ownerId);
+    const owner = await this.model.findById(ownerId).lean();
+    console.log(owner);
     if (!owner) {
       throw new Error(`Owner with id ${ownerId} not found`);
     }
