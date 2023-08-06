@@ -144,15 +144,32 @@ export class ProductService {
 
     // If 'after' cursor is provided, adjust the query to start after this cursor
     if (after) {
-      const afterBuffer = Buffer.from(after, 'base64');
-      // Assuming cursor is based on name and created at date
-      const [name, createdAt] = afterBuffer.toString('utf8').split('_');
-      query = query.where({
-        $or: [
-          { name: { $gt: name } },
-          { name, createdAt: { $gt: new Date(Number(createdAt)) } },
-        ],
+      const decodedJson = Buffer.from(after, 'base64').toString('utf8');
+      const structuredData: Array<{ type: string; value: string | number }> =
+        JSON.parse(decodedJson);
+
+      let productName: string | undefined;
+      let creationTimestamp: number | undefined;
+
+      structuredData.forEach((data) => {
+        if (data.type === 'string') {
+          productName = data.value as string;
+        } else if (data.type === 'date') {
+          creationTimestamp = data.value as number;
+        }
       });
+
+      if (productName && creationTimestamp) {
+        query = query.where({
+          $or: [
+            { name: { $gt: productName } },
+            {
+              name: productName,
+              createdAt: { $gt: new Date(creationTimestamp) },
+            },
+          ],
+        });
+      }
     }
 
     query = query.populate('owner');
@@ -178,21 +195,25 @@ export class ProductService {
 }
 
 type Argument = string | Date;
-export function generateCursor(...args: Argument[]): Buffer {
-  return Buffer.concat(
+
+export function generateCursor(...args: Argument[]): string {
+  // Create a structured data representation from the arguments
+  const structuredData: Array<{ type: string; value: string | number }> =
     args.map((arg: Argument) => {
-      if (arg === null || arg === undefined) {
-        throw new Error('null or undefined argument');
-      }
       if (arg instanceof Date) {
-        const buf = Buffer.alloc(8, 0);
-        buf.writeBigUInt64BE(BigInt(arg.getTime()));
-        return buf;
+        return { type: 'date', value: arg.getTime() };
       }
       if (typeof arg === 'string') {
-        return Buffer.from(arg.substring(0, 8).padEnd(8, ' '), 'utf8');
+        return { type: 'string', value: arg };
       }
-      throw new Error('argument type is not supported');
-    }),
-  );
+      throw new Error('Unsupported argument type');
+    });
+
+  // Convert the structured data to a JSON string
+  const jsonString = JSON.stringify(structuredData);
+
+  // Encode the JSON string in base64
+  const base64Encoded = Buffer.from(jsonString).toString('base64');
+
+  return base64Encoded;
 }

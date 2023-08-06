@@ -1,10 +1,11 @@
 interface Node {
   id: Binary!
 }
+union NodeResult = Account | Product
 
 type Query {
   """
   Returns an object given by its ID.
   """
-  node(id: Binary!): Node!
+  node(id: Binary!): NodeResult!
 }

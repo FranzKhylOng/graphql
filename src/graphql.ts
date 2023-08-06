@@ -94,7 +94,7 @@ export interface IMutation {
 
 export interface IQuery {
     me(): Account | Promise<Account>;
-    node(id: Binary): Node | Promise<Node>;
+    node(id: Binary): NodeResult | Promise<NodeResult>;
     products(first?: Nullable<number>, after?: Nullable<Binary>, filter?: Nullable<ProductsFilter>, sort?: Nullable<ProductSortInput>): ProductConnection | Promise<ProductConnection>;
 }
 
@@ -129,4 +129,5 @@ export interface ProductEdge {
 export type Binary = any;
 export type EmailAddress = any;
 export type DateTime = any;
+export type NodeResult = Account | Product;
 type Nullable<T> = T | null;
