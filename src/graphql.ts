@@ -68,6 +68,7 @@ export interface ProductsFilter {
 
 export interface ProductSortInput {
     name?: Nullable<number>;
+    createdAt?: Nullable<number>;
 }
 
 export interface Node {

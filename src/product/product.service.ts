@@ -25,12 +25,12 @@ export class ProductService {
   ) {}
 
   async create(createProductInput: CreateProductInput) {
-    const owner = await this.accountService.retrieveById(
+    const ownerAccount = await this.accountService.retrieveById(
       createProductInput.owner.id,
     );
     const createdProduct = await this.model.create({
       ...createProductInput,
-      owner: owner, // replace owner._id with owner
+      owner: ownerAccount,
     });
     return createdProduct.toObject({ virtuals: true }); // add virtuals: true to include virtual properties
   }
@@ -111,8 +111,18 @@ export class ProductService {
 
     // Apply sorting
     if (sort) {
-      if (sort && typeof sort.name === 'number') {
-        query = query.sort({ name: 1, createdAt: 1 });
+      const sortString: string[] = [];
+
+      if (sort.name) {
+        sortString.push(sort.name === 1 ? 'name' : '-name');
+      }
+
+      if (sort.createdAt) {
+        sortString.push(sort.createdAt === 1 ? 'createdAt' : '-createdAt');
+      }
+
+      if (sortString.length) {
+        query = query.sort(sortString.join(' '));
       }
     }
 
