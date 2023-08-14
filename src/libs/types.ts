@@ -1,6 +1,7 @@
 import { Binary } from '../graphql';
+import { Document } from 'mongoose';
 
-export type UserType = {
+export type UserType = Document & {
   firstname: string;
   lastname: string;
   emailAddress: string;

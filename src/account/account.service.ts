@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Binary } from '../graphql';
 import { UserType } from '../libs/types';
+import { SignUpInput } from '../graphql';
 
 @Injectable()
 export class AccountService {
@@ -14,7 +15,7 @@ export class AccountService {
     private jwtService: JwtService,
   ) {}
 
-  async create(user: UserType) {
+  async create(user: SignUpInput) {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(user.password, saltRounds);
     return await this.model.create({ ...user, password: hashedPassword });

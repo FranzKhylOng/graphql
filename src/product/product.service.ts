@@ -6,6 +6,7 @@ import {
   ProductEdge,
   PageInfo,
   ProductConnection,
+  UserType,
 } from '../libs/types';
 import {
   CreateProductInput,
@@ -182,7 +183,16 @@ export class ProductService {
       const cursor = generateCursor(product.name, product.createdAt);
       return {
         cursor,
-        node: product,
+        node: {
+          ...product.toObject(),
+          id: Buffer.from(product._id.toString()), // Product ID transformation
+          owner: {
+            id: Buffer.from(product.owner._id.toString()), // Owner ID transformation
+            firstname: product.owner.firstname,
+            lastname: product.owner.lastname,
+            emailAddress: product.owner.emailAddress,
+          } as UserType, // <-- Type assertion here
+        },
       };
     });
 
