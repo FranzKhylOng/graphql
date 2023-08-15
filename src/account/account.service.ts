@@ -35,15 +35,9 @@ export class AccountService {
   }
 
   async retrieveById(id: Binary) {
-    console.log(id);
     const ownerId = Buffer.from(id, 'base64').toString();
-    console.log(ownerId);
     const owner = await this.model.findById(ownerId).lean();
-    console.log(owner);
-    if (!owner) {
-      throw new Error(`Owner with id ${ownerId} not found`);
-    }
-    return owner;
+    return owner || null;
   }
 
   async retrieveByEmail(emailAddress: string) {

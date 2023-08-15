@@ -15,13 +15,9 @@ export class NodeResolver {
   async getNode(
     @Args('id', { type: () => String }) id: string,
   ): Promise<User | Product> {
-    try {
-      const account = await this.accountService.retrieveById(id);
-      if (account) {
-        return account;
-      }
-    } catch (e) {
-      console.error(e.message);
+    const account = await this.accountService.retrieveById(id);
+    if (account) {
+      return account;
     }
 
     const product = await this.productService.retrieve(id);
