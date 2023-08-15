@@ -56,10 +56,7 @@ input ProductSortInput {
   name: Int
   createdAt: Int
 }
-"""
-Ran out of time, when using an id for updateProduct/deleteProduct, use the id createProduct mutation returns,
-the id returned by the query is not formatted correctly yet.
-"""
+
 type Mutation {
   createProduct(input: CreateProductInput!): Product! @private
 
