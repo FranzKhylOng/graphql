@@ -8,26 +8,26 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export interface SignUpInput {
+export class SignUpInput {
     emailAddress: EmailAddress;
     firstname: string;
     lastname: string;
     password: string;
 }
 
-export interface AuthenticateInput {
+export class AuthenticateInput {
     emailAddress: EmailAddress;
     password: string;
 }
 
-export interface BinaryQueryOperatorInput {
+export class BinaryQueryOperatorInput {
     eq?: Nullable<Binary>;
     ne?: Nullable<Binary>;
     in?: Nullable<Binary[]>;
     nin?: Nullable<Binary[]>;
 }
 
-export interface StringQueryOperatorInput {
+export class StringQueryOperatorInput {
     eq?: Nullable<string>;
     ne?: Nullable<string>;
     in?: Nullable<string[]>;
@@ -36,32 +36,32 @@ export interface StringQueryOperatorInput {
     contains?: Nullable<string>;
 }
 
-export interface CreateProductInput {
+export class CreateProductInput {
     name: string;
     description: string;
     owner: Binary;
 }
 
-export interface UpdateProductInput {
+export class UpdateProductInput {
     id: Binary;
     body: UpdateProductBody;
 }
 
-export interface UpdateProductBody {
+export class UpdateProductBody {
     name?: Nullable<string>;
     description?: Nullable<string>;
 }
 
-export interface DeleteProductInput {
+export class DeleteProductInput {
     id: Binary;
 }
 
-export interface ProductsFilter {
+export class ProductsFilter {
     id?: Nullable<BinaryQueryOperatorInput>;
     name?: Nullable<StringQueryOperatorInput>;
 }
 
-export interface ProductSortInput {
+export class ProductSortInput {
     createdAt?: Nullable<number>;
 }
 
@@ -69,7 +69,7 @@ export interface Node {
     id: Binary;
 }
 
-export interface Account extends Node {
+export class Account implements Node {
     id: Binary;
     firstname: string;
     lastname: string;
@@ -78,25 +78,31 @@ export interface Account extends Node {
     updatedAt: DateTime;
 }
 
-export interface IMutation {
-    signUp(input: SignUpInput): Authentication | Promise<Authentication>;
-    authenticate(input: AuthenticateInput): Authentication | Promise<Authentication>;
-    createProduct(input: CreateProductInput): Product | Promise<Product>;
-    updateProduct(input: UpdateProductInput): Product | Promise<Product>;
-    deleteProduct(input: DeleteProductInput): boolean | Promise<boolean>;
+export abstract class IMutation {
+    abstract signUp(input: SignUpInput): Authentication | Promise<Authentication>;
+
+    abstract authenticate(input: AuthenticateInput): Authentication | Promise<Authentication>;
+
+    abstract createProduct(input: CreateProductInput): Product | Promise<Product>;
+
+    abstract updateProduct(input: UpdateProductInput): Product | Promise<Product>;
+
+    abstract deleteProduct(input: DeleteProductInput): boolean | Promise<boolean>;
 }
 
-export interface IQuery {
-    me(): Account | Promise<Account>;
-    node(id: Binary): NodeResult | Promise<NodeResult>;
-    products(first?: Nullable<number>, after?: Nullable<Binary>, filter?: Nullable<ProductsFilter>, sort?: Nullable<ProductSortInput>): ProductConnection | Promise<ProductConnection>;
+export abstract class IQuery {
+    abstract me(): Account | Promise<Account>;
+
+    abstract node(id: Binary): NodeResult | Promise<NodeResult>;
+
+    abstract products(first?: Nullable<number>, after?: Nullable<Binary>, filter?: Nullable<ProductsFilter>, sort?: Nullable<ProductSortInput>): ProductConnection | Promise<ProductConnection>;
 }
 
-export interface Authentication {
+export class Authentication {
     token: string;
 }
 
-export interface Product extends Node {
+export class Product implements Node {
     id: Binary;
     name: string;
     description: string;
@@ -105,17 +111,17 @@ export interface Product extends Node {
     updatedAt: DateTime;
 }
 
-export interface ProductConnection {
+export class ProductConnection {
     edges: ProductEdge[];
     pageInfo: PageInfo;
 }
 
-export interface PageInfo {
+export class PageInfo {
     hasNextPage: boolean;
     endCursor?: Nullable<Binary>;
 }
 
-export interface ProductEdge {
+export class ProductEdge {
     cursor: Binary;
     node: Product;
 }

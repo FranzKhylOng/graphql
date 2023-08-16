@@ -9,5 +9,5 @@
 - rename the file private-directive, and add verification for token type -------------------------------------
 - for product-model:
   - change owner type to binary/id instead of saving the whole account document --------------------------
-  - add cursor field, by default it should be a buffer of the current timestamp
+  - add cursor field, by default it should be a buffer of the current timestamp ------------------
 - for product resolver, add new field-resolver for owner. which is to retrieve the account details given the product owner ------------------------
