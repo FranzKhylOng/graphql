@@ -1,5 +1,18 @@
 import { Binary } from '../graphql';
 import { Document } from 'mongoose';
+import DataLoader from 'dataloader';
+
+export type AppContext = {
+  claims: Claims;
+  dataLoaders: {
+    Account: DataLoader<Buffer, UserType>;
+    Product: DataLoader<Buffer, Product>;
+  };
+};
+
+export type Claims = {
+  id: string;
+};
 
 export type UserType = Document & {
   firstname: string;

@@ -11,6 +11,7 @@ import { BinaryScalar } from './scalars/binary.scalar';
 import { AccountResolver } from './resolvers/account.resolver';
 import { ProductResolver } from './resolvers/product.resolver';
 import { NodeResolver } from './resolvers/node.resolver';
+import { DataLoaderService } from './libs/data-loader.service';
 
 @Module({
   imports: [
@@ -38,6 +39,11 @@ import { NodeResolver } from './resolvers/node.resolver';
     AccountModule,
     ProductModule,
   ],
-  providers: [AccountResolver, ProductResolver, NodeResolver],
+  providers: [
+    AccountResolver,
+    ProductResolver,
+    NodeResolver,
+    DataLoaderService,
+  ],
 })
 export class AppModule {}
