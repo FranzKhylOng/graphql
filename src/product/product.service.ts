@@ -185,13 +185,13 @@ export class ProductService {
         cursor,
         node: {
           ...product.toObject(),
-          id: Buffer.from(product._id.toString()), // Product ID transformation
+          id: Buffer.from(product._id.toString()),
           owner: {
-            id: Buffer.from(product.owner._id.toString()), // Owner ID transformation
+            id: Buffer.from(product.owner._id.toString()),
             firstname: product.owner.firstname,
             lastname: product.owner.lastname,
             emailAddress: product.owner.emailAddress,
-          } as UserType, // <-- Type assertion here
+          } as UserType,
         },
       };
     });

@@ -5,8 +5,5 @@ interface Node {
 union NodeResult = Account | Product
 
 type Query {
-  """
-  It was modified because this was how I interpreted Query node
-  """
   node(id: Binary!): NodeResult!
 }
