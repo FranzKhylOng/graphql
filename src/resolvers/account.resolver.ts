@@ -25,11 +25,12 @@ export class AccountResolver {
 
   @Mutation('authenticate')
   async authenticate(@Args('input') authenticateInput: AuthenticateInput) {
-    const user = await this.accountService.login(
-      authenticateInput.emailAddress,
-      authenticateInput.password,
+    return this.accountService.generateToken(
+      await this.accountService.login(
+        authenticateInput.emailAddress,
+        authenticateInput.password,
+      ),
     );
-    return this.accountService.generateToken(user);
   }
 
   @Query('me')

@@ -32,7 +32,7 @@ export class DataLoaderService {
             },
           })) as UserDocument[];
           return R.map(
-            (id) => accounts.find((account) => account._id === id),
+            (id) => accounts.find((account) => account._id.compare(id) === 0),
             ids,
           );
         });
