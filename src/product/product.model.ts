@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { User } from '../account/account.model';
 import * as mongoose from 'mongoose';
+import { Binary } from 'src/graphql';
 
 @Schema({ timestamps: true })
 export class Product extends Document {
@@ -11,8 +11,15 @@ export class Product extends Document {
   price: number;
   @Prop()
   description: string;
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  owner: User;
+  @Prop({ type: mongoose.Schema.Types.ObjectId })
+  owner: Binary;
+  @Prop({
+    type: Buffer,
+    default: () => {
+      return Buffer.from(Date.now().toString());
+    },
+  })
+  cursor: Buffer;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

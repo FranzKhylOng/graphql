@@ -48,7 +48,6 @@ input ProductsFilter {
 }
 
 input ProductSortInput {
-  name: Int
   createdAt: Int
 }
 

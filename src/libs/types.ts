@@ -26,7 +26,7 @@ export type Product = {
   id: Binary;
   name: string;
   price: number;
-  cursor: string;
+  cursor: Binary;
   description: string;
   createdAt: Date;
   updatedAt: Date;
@@ -48,13 +48,8 @@ export type ProductConnection = {
   pageInfo: PageInfo;
 };
 
-export type AccountInput = {
-  id: Binary;
-  emailAddress: string;
-};
-
 export type CreateProductInput = {
   name: string;
   description: string;
-  owner: AccountInput;
+  owner: Binary;
 };
