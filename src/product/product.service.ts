@@ -6,7 +6,7 @@ import {
   ProductEdge,
   PageInfo,
   ProductConnection,
-  UserType,
+  UserDocument,
 } from '../libs/types';
 import {
   CreateProductInput,
@@ -191,7 +191,7 @@ export class ProductService {
             firstname: product.owner.firstname,
             lastname: product.owner.lastname,
             emailAddress: product.owner.emailAddress,
-          } as UserType,
+          } as UserDocument,
         },
       };
     });

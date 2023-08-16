@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { User } from './account.model';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Binary } from '../graphql';
-import { UserType } from '../libs/types';
+import { UserDocument } from '../libs/types';
 import { SignUpInput } from '../graphql';
 
 @Injectable()
@@ -21,11 +21,11 @@ export class AccountService {
     return await this.model.create({ ...user, password: hashedPassword });
   }
 
-  async update(id: string, updates: UserType) {
+  async update(id: string, updates: UserDocument) {
     return this.model.findByIdAndUpdate(id, updates);
   }
 
-  async retrieve(params: { emailAddress: string }) {
+  async retrieveByEmail(params: { emailAddress: string }) {
     if (params.emailAddress) {
       return this.model
         .findOne({ emailAddress: params.emailAddress }, { __v: 0 })
@@ -40,15 +40,15 @@ export class AccountService {
     return owner || null;
   }
 
-  async retrieveByEmail(emailAddress: string) {
-    return this.model.findOne({ emailAddress });
+  async retrieve(filter: FilterQuery<UserDocument>) {
+    return this.model.find<UserDocument>(filter, { __v: 0 }).lean();
   }
 
   async delete(id: string) {
     this.model.findByIdAndDelete(id);
   }
 
-  async generateToken(user: UserType) {
+  async generateToken(user: UserDocument) {
     const payload = { emailAddress: user.emailAddress, sub: user.id };
     return {
       token: await this.jwtService.signAsync(payload),

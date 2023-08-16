@@ -13,7 +13,7 @@ export class AccountResolver {
 
   @Mutation('signUp')
   async signUp(@Args('input') signUpInput: SignUpInput) {
-    const existingUser = await this.accountService.retrieve({
+    const existingUser = await this.accountService.retrieveByEmail({
       emailAddress: signUpInput.emailAddress,
     });
     if (existingUser) {
@@ -34,7 +34,7 @@ export class AccountResolver {
 
   @Query('me')
   async me(@Context() context: any) {
-    const user = await this.accountService.retrieve({
+    const user = await this.accountService.retrieveByEmail({
       emailAddress: context.user,
     });
 

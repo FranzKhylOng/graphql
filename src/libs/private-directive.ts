@@ -40,13 +40,14 @@ const getResolveFunction = (defaultResolver) => {
       throw new Error('Authorization header not found');
     }
 
-    const [, token] = authHeader.split(' ');
+    const [type, token] = authHeader.split(' ');
+    if (type.toLowerCase() !== 'bearer') throw new Error('Invalid Token');
     try {
       const jwt = new JwtService({
         secret: 'secretcodeshhh',
       });
-      const decodedToken = jwt.verify(token); // Verify the token
-      context.user = decodedToken.emailAddress; // Set the user object in the request
+      const decodedToken = jwt.verify(token);
+      context.user = decodedToken.emailAddress;
 
       return await defaultResolver(source, args, context, info);
     } catch (err) {

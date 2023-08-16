@@ -5,7 +5,7 @@ import DataLoader from 'dataloader';
 export type AppContext = {
   claims: Claims;
   dataLoaders: {
-    Account: DataLoader<Buffer, UserType>;
+    Account: DataLoader<Buffer, UserDocument>;
     Product: DataLoader<Buffer, Product>;
   };
 };
@@ -14,7 +14,7 @@ export type Claims = {
   id: string;
 };
 
-export type UserType = Document & {
+export type UserDocument = Document & {
   firstname: string;
   lastname: string;
   emailAddress: string;
@@ -30,7 +30,7 @@ export type Product = {
   description: string;
   createdAt: Date;
   updatedAt: Date;
-  owner: UserType;
+  owner: UserDocument;
 };
 
 export type ProductEdge = {

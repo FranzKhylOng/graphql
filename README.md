@@ -1,9 +1,10 @@
 ## Action Points
-- install @nestjs/config, @nestjs/jwt, dataloader modules
-- use config-module for setting the mongodb uri
+
+- install @nestjs/config, @nestjs/jwt, dataloader modules ----------------------------------------------
+- use config-module for setting the mongodb uri --------------------------------------------
 - for account-model, add new index for email-address and set it to unique true
-- rename type UserType to UserDocument
-- rename account-service methods to more suitable name, e.g. retrieve => retrieveByEmailAddress
+- rename type UserType to UserDocument -----------
+- rename account-service methods to more suitable name, e.g. retrieve => retrieveByEmailAddress -------------------
 - for dataloader, use the retrieval of multiple documents instead of findOne and mapped the resulting documents by their keys/ids
 - rename the file private-directive, and add verification for token type
 - for product-model:

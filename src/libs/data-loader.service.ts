@@ -1,7 +1,7 @@
 import { AccountService } from '../account/account.service';
 import { ProductService } from '../product/product.service';
 import { Binary } from '../graphql';
-import { AppContext, UserType, Product } from '../libs/types';
+import { AppContext, UserDocument, Product } from '../libs/types';
 import { Injectable } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import R from 'ramda';
@@ -13,7 +13,10 @@ export class DataLoaderService {
     private readonly productService: ProductService,
   ) {}
 
-  dataLoader(ctx: AppContext, type: 'Account'): DataLoader<Binary, UserType>;
+  dataLoader(
+    ctx: AppContext,
+    type: 'Account',
+  ): DataLoader<Binary, UserDocument>;
   dataLoader(ctx: AppContext, type: 'Product'): DataLoader<Binary, Product>;
   dataLoader(ctx: AppContext, type: string): unknown {
     if (!ctx.dataLoaders) {
@@ -22,14 +25,16 @@ export class DataLoaderService {
     if (type === 'Account') {
       let dataLoader = R.path(['dataLoaders', 'Account'], ctx);
       if (!dataLoader) {
-        dataLoader = new DataLoader(async (keys: Binary[]) => {
-          const list = await this.accountService.retrieveById({
+        dataLoader = new DataLoader(async (ids: Binary[]) => {
+          const accounts = (await this.accountService.retrieve({
             id: {
-              $in: keys,
+              $in: ids,
             },
-          });
-          const map = new Map(R.map((item) => [item.id, item], list));
-          return R.map((key) => map.get(key), keys);
+          })) as UserDocument[];
+          return R.map(
+            (id) => accounts.find((account) => account._id === id),
+            ids,
+          );
         });
       }
       return dataLoader;
