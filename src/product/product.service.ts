@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model, SortOrder } from 'mongoose';
 import {
   Product,
   ProductEdge,
@@ -26,18 +26,7 @@ export class ProductService {
   ) {}
 
   async create(createProductInput: CreateProductInput) {
-    const ownerAccount = await this.accountService.retrieveById(
-      createProductInput.owner.id,
-    );
-    const createdProduct = await this.model.create({
-      ...createProductInput,
-      owner: ownerAccount,
-    });
-    const populatedProduct = await this.model
-      .findById(createdProduct._id)
-      .populate('owner')
-      .exec();
-    return populatedProduct.toObject({ virtuals: true });
+    return this.model.create(createProductInput);
   }
 
   async update(id: Binary, updates: UpdateProductInput['body']) {
@@ -52,7 +41,11 @@ export class ProductService {
     return updatedProduct.toObject();
   }
 
-  retrieve(id: Binary) {
+  async retrieve(filter: FilterQuery<Product>) {
+    return this.model.find<Product>(filter, { __v: 0 }).lean();
+  }
+
+  retrieveById(id: Binary) {
     return this.model.findById(id);
   }
 
@@ -114,35 +107,7 @@ export class ProductService {
     }
 
     if (sort) {
-      const sortString: string[] = [];
-
-      if (sort.name) {
-        if (sort.name === 1) {
-          sortString.push('name');
-        } else if (sort.name === -1) {
-          sortString.push('-name');
-        } else {
-          throw new Error(
-            'Invalid sort value for "name". Only 1 (ascending) or -1 (descending) are allowed.',
-          );
-        }
-      }
-
-      if (sort.createdAt) {
-        if (sort.createdAt === 1) {
-          sortString.push('createdAt');
-        } else if (sort.createdAt === -1) {
-          sortString.push('-createdAt');
-        } else {
-          throw new Error(
-            'Invalid sort value for "createdAt". Only 1 (ascending) or -1 (descending) are allowed.',
-          );
-        }
-      }
-
-      if (sortString.length) {
-        query = query.sort(sortString.join(' '));
-      }
+      query = query.sort(sort as Record<string, SortOrder>);
     }
 
     if (after) {

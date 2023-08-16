@@ -20,7 +20,7 @@ export class NodeResolver {
       return account;
     }
 
-    const product = await this.productService.retrieve(id);
+    const product = await this.productService.retrieveById(id);
     if (product) {
       return product;
     }

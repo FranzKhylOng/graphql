@@ -43,14 +43,16 @@ export class DataLoaderService {
     if (type === 'Product') {
       let dataLoader = R.path(['dataLoaders', 'Product'], ctx);
       if (!dataLoader) {
-        dataLoader = new DataLoader(async (keys: Binary[]) => {
-          const list = await this.productService.retrieve({
+        dataLoader = new DataLoader(async (ids: Binary[]) => {
+          const products = (await this.productService.retrieve({
             id: {
-              $in: keys,
+              $in: ids,
             },
-          });
-          const map = new Map(R.map((item) => [item.id, item], list));
-          return R.map((key) => map.get(key), keys);
+          })) as Product[];
+          return R.map(
+            (id) => products.find((product) => product.id.compare(id) === 0),
+            ids,
+          );
         });
       }
       return dataLoader;

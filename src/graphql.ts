@@ -36,15 +36,10 @@ export interface StringQueryOperatorInput {
     contains?: Nullable<string>;
 }
 
-export interface AccountInput {
-    id: Binary;
-    emailAddress: string;
-}
-
 export interface CreateProductInput {
     name: string;
     description: string;
-    owner: AccountInput;
+    owner: Binary;
 }
 
 export interface UpdateProductInput {
@@ -106,7 +101,7 @@ export interface Product extends Node {
     id: Binary;
     name: string;
     description: string;
-    owner: Account;
+    owner: Binary;
     createdAt: DateTime;
     updatedAt: DateTime;
 }

@@ -30,7 +30,7 @@ export type Product = {
   description: string;
   createdAt: Date;
   updatedAt: Date;
-  owner: UserDocument;
+  owner: Binary;
 };
 
 export type ProductEdge = {

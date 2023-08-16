@@ -2,7 +2,7 @@ type Product implements Node {
   id: Binary!
   name: String!
   description: String!
-  owner: Account!
+  owner: Binary!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -22,15 +22,10 @@ type ProductEdge {
   node: Product!
 }
 
-input AccountInput {
-  id: Binary!
-  emailAddress: String!
-}
-
 input CreateProductInput {
   name: String!
   description: String!
-  owner: AccountInput!
+  owner: Binary!
 }
 
 input UpdateProductInput {
