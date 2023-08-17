@@ -16,6 +16,7 @@ import {
   Binary,
 } from '../graphql';
 import { AccountService } from '../account/account.service';
+import { pipe, toPairs, map, fromPairs } from 'lodash/fp';
 
 @Injectable()
 export class ProductService {
@@ -64,45 +65,19 @@ export class ProductService {
     filter: ProductsFilter;
     sort: ProductSortInput;
   }): Promise<ProductConnection> {
-    // if (filter) {
-    //   if (filter.id) {
-    //     if (filter.id.eq) {
-    //       query = query.where('_id', Buffer.from(filter.id.eq, 'base64'));
-    //     }
-    //     if (filter.id.ne) {
-    //       query = query.where('_id').ne(Buffer.from(filter.id.ne, 'base64'));
-    //     }
-    //     if (filter.id.in) {
-    //       const inIds = filter.id.in.map((id) => Buffer.from(id, 'base64'));
-    //       query = query.where('_id').in(inIds);
-    //     }
-    //     if (filter.id.nin) {
-    //       const ninIds = filter.id.nin.map((id) => Buffer.from(id, 'base64'));
-    //       query = query.where('_id').nin(ninIds);
-    //     }
-    //   }
-    //   if (filter.name) {
-    //     if (filter.name.eq) {
-    //       query = query.where('name', filter.name.eq);
-    //     }
-    //     if (filter.name.ne) {
-    //       query = query.where('name').ne(filter.name.ne);
-    //     }
-    //     if (filter.name.in) {
-    //       query = query.where('name').in(filter.name.in);
-    //     }
-    //     if (filter.name.nin) {
-    //       query = query.where('name').nin(filter.name.nin);
-    //     }
-    //     if (filter.name.startsWith) {
-    //       query = query.where('name', new RegExp('^' + filter.name.startsWith));
-    //     }
-    //     if (filter.name.contains) {
-    //       query = query.where('name', new RegExp(filter.name.contains));
-    //     }
-    //   }
-    // }
     let query: FilterQuery<Product> = filter || {};
+
+    if (filter) {
+      query = pipe(
+        toPairs,
+        map(([key, value]) => {
+          if (key === 'id') return ['_id', toMongooseQueryOperator(value)];
+          return [key, toMongooseQueryOperator(value)];
+        }),
+        fromPairs,
+      )(filter);
+    }
+
     const cursorKey = 'cursor';
 
     if (after) {
@@ -133,4 +108,24 @@ export class ProductService {
 
     return { edges, pageInfo };
   }
+}
+
+function toMongooseQueryOperator(queryOperator) {
+  const operators = ['eq', 'ne', 'in', 'nin'];
+  return pipe(
+    toPairs,
+    map(([key, value]) => {
+      if (operators.includes(key)) return [`$${key}`, value];
+      if (key === 'startsWith') {
+        const regex = new RegExp(`^${value}.*$`, 'i');
+        return ['name', { $regex: regex, $options: 'i' }];
+      }
+      if (key === 'contains') {
+        const regex = new RegExp(`^.*${value}.*$`, 'i');
+        return ['name', { $regex: regex, $options: 'i' }];
+      }
+      return [key, value];
+    }),
+    fromPairs,
+  )(queryOperator);
 }
