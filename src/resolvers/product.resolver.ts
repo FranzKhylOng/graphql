@@ -31,13 +31,7 @@ export class ProductResolver {
   @Mutation('createProduct')
   async createProduct(@Args('input') createProductInput: CreateProductInput) {
     const product = await this.productService.create(createProductInput);
-
-    const { _id, ...rest } = product;
-
-    return {
-      ...rest,
-      id: Buffer.from(_id.toString()),
-    };
+    return product;
   }
 
   @Mutation('updateProduct')
