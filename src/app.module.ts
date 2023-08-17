@@ -40,6 +40,7 @@ import { ConfigService, ConfigModule } from '@nestjs/config';
           transformSchema(schema) {
             return privateDirectiveTransformerFactory(schema, 'private');
           },
+          context: ({ req }) => ({ claims: req.claims }),
         };
       },
     }),

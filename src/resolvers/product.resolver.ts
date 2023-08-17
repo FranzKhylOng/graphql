@@ -5,6 +5,7 @@ import {
   Resolver,
   ResolveField,
   Parent,
+  Context,
 } from '@nestjs/graphql';
 import { ProductService } from '../product/product.service';
 import { AccountService } from '../account/account.service';
@@ -16,12 +17,15 @@ import {
   ProductsFilter,
 } from '../graphql';
 import { Product } from 'src/product/product.model';
+import { DataLoaderService } from 'src/libs/data-loader.service';
+import { AppContext } from 'src/libs/types';
 
 @Resolver('Product')
 export class ProductResolver {
   constructor(
     private productService: ProductService,
     private accountService: AccountService,
+    private dataLoaderService: DataLoaderService,
   ) {}
 
   @Mutation('createProduct')
@@ -61,8 +65,10 @@ export class ProductResolver {
   }
 
   @ResolveField()
-  async owner(@Parent() product: Product) {
-    return this.accountService.retrieveById(product.owner);
+  async owner(@Parent() product: Product, @Context() ctx: AppContext) {
+    return this.dataLoaderService
+      .dataLoader(ctx, 'Account')
+      .load(product.owner);
   }
 
   @Query('products')
