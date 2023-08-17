@@ -26,7 +26,12 @@ export class ProductService {
   ) {}
 
   async create(createProductInput: CreateProductInput) {
-    return this.model.create(createProductInput);
+    const product = await this.model.create(createProductInput);
+    const base64Id = Buffer.from(String(product._id)).toString('base64');
+    return {
+      ...product.toObject(),
+      id: base64Id,
+    };
   }
 
   async update(id: Binary, updates: UpdateProductInput['body']) {
