@@ -68,7 +68,7 @@ export class ProductResolver {
   @Query('products')
   async products(
     @Args('first', { defaultValue: 10 }) first: number,
-    @Args('after') after: string,
+    @Args('after') after: Buffer,
     @Args('filter') filter: ProductsFilter,
     @Args('sort') sort: ProductSortInput,
   ) {

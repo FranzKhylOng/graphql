@@ -61,7 +61,7 @@ export class ProductService {
     sort,
   }: {
     first: number;
-    after: string;
+    after: Buffer;
     filter: ProductsFilter;
     sort: ProductSortInput;
   }): Promise<ProductConnection> {
@@ -111,7 +111,7 @@ export class ProductService {
     }
 
     if (after) {
-      const decodedJson = Buffer.from(after, 'base64').toString('utf8');
+      const decodedJson = after.toString('utf8');
       const structuredData: Array<{ type: string; value: string | number }> =
         JSON.parse(decodedJson);
 
