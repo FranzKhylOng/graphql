@@ -6,7 +6,6 @@ import {
   ProductEdge,
   PageInfo,
   ProductConnection,
-  UserDocument,
 } from '../libs/types';
 import {
   CreateProductInput,
@@ -65,98 +64,64 @@ export class ProductService {
     filter: ProductsFilter;
     sort: ProductSortInput;
   }): Promise<ProductConnection> {
-    let query = this.model.find();
-
-    if (filter) {
-      if (filter.id) {
-        if (filter.id.eq) {
-          query = query.where('_id', Buffer.from(filter.id.eq, 'base64'));
-        }
-        if (filter.id.ne) {
-          query = query.where('_id').ne(Buffer.from(filter.id.ne, 'base64'));
-        }
-        if (filter.id.in) {
-          const inIds = filter.id.in.map((id) => Buffer.from(id, 'base64'));
-          query = query.where('_id').in(inIds);
-        }
-        if (filter.id.nin) {
-          const ninIds = filter.id.nin.map((id) => Buffer.from(id, 'base64'));
-          query = query.where('_id').nin(ninIds);
-        }
-      }
-      if (filter.name) {
-        if (filter.name.eq) {
-          query = query.where('name', filter.name.eq);
-        }
-        if (filter.name.ne) {
-          query = query.where('name').ne(filter.name.ne);
-        }
-        if (filter.name.in) {
-          query = query.where('name').in(filter.name.in);
-        }
-        if (filter.name.nin) {
-          query = query.where('name').nin(filter.name.nin);
-        }
-        if (filter.name.startsWith) {
-          query = query.where('name', new RegExp('^' + filter.name.startsWith));
-        }
-        if (filter.name.contains) {
-          query = query.where('name', new RegExp(filter.name.contains));
-        }
-      }
-    }
-
-    if (sort) {
-      query = query.sort(sort as Record<string, SortOrder>);
-    }
+    // if (filter) {
+    //   if (filter.id) {
+    //     if (filter.id.eq) {
+    //       query = query.where('_id', Buffer.from(filter.id.eq, 'base64'));
+    //     }
+    //     if (filter.id.ne) {
+    //       query = query.where('_id').ne(Buffer.from(filter.id.ne, 'base64'));
+    //     }
+    //     if (filter.id.in) {
+    //       const inIds = filter.id.in.map((id) => Buffer.from(id, 'base64'));
+    //       query = query.where('_id').in(inIds);
+    //     }
+    //     if (filter.id.nin) {
+    //       const ninIds = filter.id.nin.map((id) => Buffer.from(id, 'base64'));
+    //       query = query.where('_id').nin(ninIds);
+    //     }
+    //   }
+    //   if (filter.name) {
+    //     if (filter.name.eq) {
+    //       query = query.where('name', filter.name.eq);
+    //     }
+    //     if (filter.name.ne) {
+    //       query = query.where('name').ne(filter.name.ne);
+    //     }
+    //     if (filter.name.in) {
+    //       query = query.where('name').in(filter.name.in);
+    //     }
+    //     if (filter.name.nin) {
+    //       query = query.where('name').nin(filter.name.nin);
+    //     }
+    //     if (filter.name.startsWith) {
+    //       query = query.where('name', new RegExp('^' + filter.name.startsWith));
+    //     }
+    //     if (filter.name.contains) {
+    //       query = query.where('name', new RegExp(filter.name.contains));
+    //     }
+    //   }
+    // }
+    let query: FilterQuery<Product> = filter || {};
+    const cursorKey = 'cursor';
 
     if (after) {
-      const decodedJson = after.toString('utf8');
-      const structuredData: Array<{ type: string; value: string | number }> =
-        JSON.parse(decodedJson);
-
-      let productName: string | undefined;
-      let creationTimestamp: number | undefined;
-
-      structuredData.forEach((data) => {
-        if (data.type === 'string') {
-          productName = data.value as string;
-        } else if (data.type === 'date') {
-          creationTimestamp = data.value as number;
-        }
-      });
-
-      if (productName && creationTimestamp) {
-        query = query.where({
-          $or: [
-            { name: { $gt: productName } },
-            {
-              name: productName,
-              createdAt: { $gt: new Date(creationTimestamp) },
-            },
-          ],
-        });
-      }
+      query = { ...query, [cursorKey]: { $gt: after } };
     }
 
-    query = query.populate('owner');
-
-    const products = await query.limit(first + 1).exec();
+    const products = await this.model
+      .find(query)
+      .sort({ [cursorKey]: (sort.createdAt as SortOrder) || 1 })
+      .limit(first + 1)
+      .exec();
 
     const hasNextPage = products.length > first;
     const edges: ProductEdge[] = products.slice(0, first).map((product) => {
-      const cursor = generateCursor(product.name, product.createdAt);
       return {
-        cursor,
+        cursor: product.cursor,
         node: {
-          ...product.toObject(),
+          ...product.toJSON(),
           id: Buffer.from(product._id.toString()),
-          owner: {
-            id: Buffer.from(product.owner._id.toString()),
-            firstname: product.owner.firstname,
-            lastname: product.owner.lastname,
-            emailAddress: product.owner.emailAddress,
-          } as UserDocument,
         },
       };
     });
