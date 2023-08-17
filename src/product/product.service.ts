@@ -16,7 +16,7 @@ import {
   Binary,
 } from '../graphql';
 import { AccountService } from '../account/account.service';
-import { pipe, toPairs, map, fromPairs } from 'lodash/fp';
+import { pipe, toPairs, fromPairs, map } from 'ramda';
 
 @Injectable()
 export class ProductService {

@@ -1,6 +1,6 @@
 ## Action Points
 
-- for product owner resolver, use data-loader to query the account details
+- for product owner resolver, use data-loader to query the account details------------
 - in product pagination:
   - convert graphql query-operators to mongoose query operator
   - use same cursor key for both sorting & after -----------
