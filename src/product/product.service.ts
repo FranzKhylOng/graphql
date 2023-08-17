@@ -134,24 +134,3 @@ export class ProductService {
     return { edges, pageInfo };
   }
 }
-
-type Argument = string | Date;
-
-export function generateCursor(...args: Argument[]): string {
-  const structuredData: Array<{ type: string; value: string | number }> =
-    args.map((arg: Argument) => {
-      if (arg instanceof Date) {
-        return { type: 'date', value: arg.getTime() };
-      }
-      if (typeof arg === 'string') {
-        return { type: 'string', value: arg };
-      }
-      throw new Error('Unsupported argument type');
-    });
-
-  const jsonString = JSON.stringify(structuredData);
-
-  const base64Encoded = Buffer.from(jsonString).toString('base64');
-
-  return base64Encoded;
-}
