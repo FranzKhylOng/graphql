@@ -91,7 +91,7 @@ export class ProductService {
 
     const products = await this.model
       .find(query)
-      .sort({ [cursorKey]: (sort.createdAt as SortOrder) || 1 })
+      .sort({ [cursorKey]: (sort?.createdAt as SortOrder) || 1 })
       .limit(first + 1)
       .exec();
 
