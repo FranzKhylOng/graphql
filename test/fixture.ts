@@ -8,6 +8,47 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { faker } from '@faker-js/faker';
 import * as supertest from 'supertest';
 
+//queries and variables to be use in functions
+const signUpMutation = `
+mutation($input: SignUpInput!){
+  signUp(input: $input){
+    token
+  }
+}
+`;
+
+const authenticateMutation = `
+mutation($input: AuthenticateInput!){
+  authenticate(input: $input){
+    token
+  }
+}
+`;
+
+const meQuery = `
+query {
+  me {
+    id
+  }
+}
+`;
+
+const userbody = {
+  email: faker.internet.email(),
+  password: faker.internet.password(),
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
+};
+
+const signUpVariables = {
+  input: {
+    emailAddress: userbody.email,
+    password: userbody.password,
+    firstname: userbody.firstName,
+    lastname: userbody.lastName,
+  },
+};
+
 export async function fixture() {
   const mongod = await MongoMemoryServer.create();
   const uri = mongod.getUri();
@@ -43,38 +84,6 @@ export async function fixture() {
 }
 
 export async function loginAndGetToken(request) {
-  const userbody = {
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-  };
-
-  const signUpMutation = `
-    mutation($input: SignUpInput!){
-      signUp(input: $input){
-        token
-      }
-    }
-  `;
-
-  const authenticateMutation = `
-    mutation($input: AuthenticateInput!){
-      authenticate(input: $input){
-        token
-      }
-    }
-  `;
-
-  const signUpVariables = {
-    input: {
-      emailAddress: userbody.email,
-      password: userbody.password,
-      firstname: userbody.firstName,
-      lastname: userbody.lastName,
-    },
-  };
-
   const authenticateVariables = {
     input: {
       emailAddress: userbody.email,
@@ -93,4 +102,20 @@ export async function loginAndGetToken(request) {
   });
 
   return response.body.data.authenticate.token;
+}
+
+export async function signUpAndGetUserId(request) {
+  const signUpResponse = await request.post('/graphql').send({
+    query: signUpMutation,
+    variables: signUpVariables,
+  });
+
+  const token = signUpResponse.body.data.signUp.token;
+
+  const meResponse = await request
+    .post('/graphql')
+    .send({ query: meQuery })
+    .set('Authorization', `Bearer ${token}`);
+
+  return meResponse.body.data.me.id;
 }
