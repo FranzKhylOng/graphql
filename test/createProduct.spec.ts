@@ -45,4 +45,26 @@ describe('create product', () => {
     });
     await teardown();
   });
+
+  test.concurrent('invalid access token', async () => {
+    const { request, teardown } = await fixture();
+    const { id } = await loginAndGetToken(request);
+    productbody = { ...productbody, owner: id };
+    const variables = {
+      input: productbody,
+    };
+
+    const token = 'I_am_a_wrong_token';
+    const response = await request
+      .post('/graphql')
+      .send({
+        query: createMutation,
+        variables: variables,
+      })
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(response.body.errors[0].message).toBe('Invalid token');
+    await teardown();
+  });
 });
