@@ -57,7 +57,8 @@ export class ProductService {
   }
 
   retrieveById(id: Binary) {
-    return this.model.findById(id);
+    const decodedId = Buffer.from(id, 'base64').toString('utf-8');
+    return this.model.findById(decodedId);
   }
 
   async delete(id: DeleteProductInput['id']): Promise<boolean> {

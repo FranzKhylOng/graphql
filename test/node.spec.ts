@@ -24,4 +24,55 @@ describe('node', () => {
     expect(response.body.errors).toBeUndefined();
     await teardown();
   });
+
+  test.concurrent('node product', async () => {
+    const { request, teardown } = await fixture();
+    const productid = await createProductAndGetId(request);
+    const { token } = await loginAndGetToken(request);
+
+    const nodeProduct = `query{
+        node(id: "${productid}"){
+             ... on Product{
+            name
+            description
+          }
+        }
+      }`;
+
+    const response = await request
+      .post('/graphql')
+      .send({
+        query: nodeProduct,
+      })
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(response.body.errors).toBeUndefined();
+    await teardown();
+  });
+
+  test.concurrent('node product', async () => {
+    const { request, teardown } = await fixture();
+    const { token } = await loginAndGetToken(request);
+
+    const nodeProduct = `query{
+        node(id: "wrong_id"){
+             ... on Product{
+            name
+            description
+          }
+        }
+      }`;
+
+    const response = await request
+      .post('/graphql')
+      .send({
+        query: nodeProduct,
+      })
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(response.body.errors).toBeDefined();
+    expect(response.body.data).toBeNull();
+    await teardown();
+  });
 });
