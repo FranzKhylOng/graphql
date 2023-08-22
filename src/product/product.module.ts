@@ -4,7 +4,7 @@ import { Product, ProductSchema } from './product.model';
 import { ProductService } from './product.service';
 import { ProductResolver } from '../resolvers/product.resolver';
 import { AccountModule } from '../account/account.module';
-import { DataLoaderService } from 'src/libs/data-loader.service';
+import { DataLoaderService } from '../libs/data-loader.service';
 
 @Module({
   imports: [

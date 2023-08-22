@@ -16,9 +16,9 @@ import {
   ProductSortInput,
   ProductsFilter,
 } from '../graphql';
-import { Product } from 'src/product/product.model';
-import { DataLoaderService } from 'src/libs/data-loader.service';
-import { AppContext } from 'src/libs/types';
+import { Product } from '../product/product.model';
+import { DataLoaderService } from '../libs/data-loader.service';
+import { AppContext } from '../libs/types';
 
 @Resolver('Product')
 export class ProductResolver {

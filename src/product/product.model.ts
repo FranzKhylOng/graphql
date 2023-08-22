@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
-import { Binary } from 'src/graphql';
+import { Binary } from '../graphql';
 
 @Schema({ timestamps: true })
 export class Product extends Document {

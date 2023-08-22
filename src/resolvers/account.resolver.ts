@@ -2,7 +2,7 @@
 import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
 import { AccountService } from '../account/account.service';
 import { JwtService } from '@nestjs/jwt';
-import { SignUpInput, AuthenticateInput } from 'src/graphql';
+import { SignUpInput, AuthenticateInput } from '../graphql';
 
 @Resolver('Account')
 export class AccountResolver {
