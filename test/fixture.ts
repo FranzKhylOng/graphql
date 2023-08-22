@@ -33,6 +33,14 @@ query {
 }
 `;
 
+const createProductMutation = `
+mutation($input: CreateProductInput!) {
+  createProduct(input:$input){
+      id
+  }
+}
+`;
+
 const userbody = {
   email: faker.internet.email(),
   password: faker.internet.password(),
@@ -114,4 +122,34 @@ export async function loginAndGetToken(request) {
     token: token,
     id: id,
   };
+}
+
+export async function createProductAndGetId(request) {
+  type ProductBodyType = {
+    name: string;
+    description: string;
+    owner?: any;
+  };
+
+  let productbody: ProductBodyType = {
+    name: faker.commerce.product(),
+    description: faker.commerce.productDescription(),
+  };
+
+  const { token, id } = await loginAndGetToken(request);
+  productbody = { ...productbody, owner: id };
+  const variables = {
+    input: productbody,
+  };
+
+  const response = await request
+    .post('/graphql')
+    .send({
+      query: createProductMutation,
+      variables: variables,
+    })
+    .set('Authorization', `Bearer ${token}`)
+    .expect(200);
+
+  return response.body.data.createProduct.id;
 }
