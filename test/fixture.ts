@@ -8,7 +8,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import { faker } from '@faker-js/faker';
 import * as supertest from 'supertest';
 
-//queries and variables to be use in functions
+//queries and variables to be used in functions
 const signUpMutation = `
 mutation($input: SignUpInput!){
   signUp(input: $input){
@@ -105,10 +105,27 @@ export async function loginAndGetToken(request) {
 }
 
 export async function signUpAndGetUserId(request) {
+  const newuserbody = {
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+  };
+
+  const newsignUpVariables = {
+    input: {
+      emailAddress: newuserbody.email,
+      password: newuserbody.password,
+      firstname: newuserbody.firstName,
+      lastname: newuserbody.lastName,
+    },
+  };
+
   const signUpResponse = await request.post('/graphql').send({
     query: signUpMutation,
-    variables: signUpVariables,
+    variables: newsignUpVariables,
   });
+  console.log(signUpResponse.body);
 
   const token = signUpResponse.body.data.signUp.token;
 
