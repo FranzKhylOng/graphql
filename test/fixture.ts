@@ -5,7 +5,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 // import { JwtService } from '@nestjs/jwt';
 // import { ProductService } from '../src/product/product.service';
 // import { UserService } from '../src/user/user.service';
-// import { faker } from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import * as supertest from 'supertest';
 
 export async function fixture() {
@@ -40,4 +40,57 @@ export async function fixture() {
       await mongod.stop();
     },
   };
+}
+
+export async function loginAndGetToken(request) {
+  const userbody = {
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+    firstName: faker.person.firstName(),
+    lastName: faker.person.lastName(),
+  };
+
+  const signUpMutation = `
+    mutation($input: SignUpInput!){
+      signUp(input: $input){
+        token
+      }
+    }
+  `;
+
+  const authenticateMutation = `
+    mutation($input: AuthenticateInput!){
+      authenticate(input: $input){
+        token
+      }
+    }
+  `;
+
+  const signUpVariables = {
+    input: {
+      emailAddress: userbody.email,
+      password: userbody.password,
+      firstname: userbody.firstName,
+      lastname: userbody.lastName,
+    },
+  };
+
+  const authenticateVariables = {
+    input: {
+      emailAddress: userbody.email,
+      password: userbody.password,
+    },
+  };
+
+  await request.post('/graphql').send({
+    query: signUpMutation,
+    variables: signUpVariables,
+  });
+
+  const response = await request.post('/graphql').send({
+    query: authenticateMutation,
+    variables: authenticateVariables,
+  });
+
+  return response.body.data.authenticate.token;
 }
