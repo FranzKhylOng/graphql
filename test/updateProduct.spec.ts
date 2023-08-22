@@ -1,6 +1,6 @@
 import { fixture, createProductAndGetId, loginAndGetToken } from './fixture';
 import { faker } from '@faker-js/faker';
-describe('deleteProduct', () => {
+describe('updateProduct', () => {
   const updateMutation = `mutation($input: UpdateProductInput!){
     updateProduct(input: $input){
       name
