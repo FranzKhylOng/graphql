@@ -41,7 +41,7 @@ export class ProductService {
   }
 
   async update(id: Binary, updates: UpdateProductInput['body']) {
-    const bufferId = Buffer.from(id, 'base64');
+    const bufferId = Buffer.from(id, 'base64').toString('utf-8');
     const updatedProduct = await this.model.findByIdAndUpdate(
       bufferId,
       updates,

@@ -1,28 +1,47 @@
 import { fixture, createProductAndGetId, loginAndGetToken } from './fixture';
-
+import { faker } from '@faker-js/faker';
 describe('deleteProduct', () => {
-  const deleteMutation = `mutation($input: DeleteProductInput!){
-        deleteProduct(input: $input)
-      }`;
-  test.concurrent('deletes product', async () => {
+  const updateMutation = `mutation($input: UpdateProductInput!){
+    updateProduct(input: $input){
+      name
+      id
+      createdAt
+      description
+    }
+  }`;
+
+  type ProductBodyType = {
+    name: string;
+    description: string;
+    owner?: any;
+  };
+
+  const newproductbody: ProductBodyType = {
+    name: faker.commerce.product(),
+    description: faker.commerce.productDescription(),
+  };
+  test.concurrent('updates product', async () => {
     const { request, teardown } = await fixture();
     const { token } = await loginAndGetToken(request);
     const productid = await createProductAndGetId(request);
     const variables = {
       input: {
         id: productid,
+        body: {
+          name: newproductbody.name,
+          description: newproductbody.description,
+        },
       },
     };
 
     const response = await request
       .post('/graphql')
       .send({
-        query: deleteMutation,
+        query: updateMutation,
         variables: variables,
       })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-    expect(response.body.data.deleteProduct).toBe(true);
     expect(response.body.errors).toBeUndefined();
     await teardown();
   });
@@ -33,6 +52,10 @@ describe('deleteProduct', () => {
     const variables = {
       input: {
         id: productid,
+        body: {
+          name: newproductbody.name,
+          description: newproductbody.description,
+        },
       },
     };
 
@@ -40,7 +63,7 @@ describe('deleteProduct', () => {
     const response = await request
       .post('/graphql')
       .send({
-        query: deleteMutation,
+        query: updateMutation,
         variables: variables,
       })
       .set('Authorization', `Bearer ${token}`)
@@ -56,13 +79,17 @@ describe('deleteProduct', () => {
     const variables = {
       input: {
         id: productid,
+        body: {
+          name: newproductbody.name,
+          description: newproductbody.description,
+        },
       },
     };
 
     const response = await request
       .post('/graphql')
       .send({
-        query: deleteMutation,
+        query: updateMutation,
         variables: variables,
       })
       .set('Authorization', `Bearer ${token}`)
