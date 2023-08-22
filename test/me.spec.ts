@@ -11,7 +11,7 @@ describe('me', () => {
       }`;
   test.concurrent('me query', async () => {
     const { request, teardown } = await fixture();
-    const token = await loginAndGetToken(request);
+    const { token } = await loginAndGetToken(request);
 
     const response = await request
       .post('/graphql')

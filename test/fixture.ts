@@ -101,38 +101,17 @@ export async function loginAndGetToken(request) {
     variables: authenticateVariables,
   });
 
-  return response.body.data.authenticate.token;
-}
-
-export async function signUpAndGetUserId(request) {
-  const newuserbody = {
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-  };
-
-  const newsignUpVariables = {
-    input: {
-      emailAddress: newuserbody.email,
-      password: newuserbody.password,
-      firstname: newuserbody.firstName,
-      lastname: newuserbody.lastName,
-    },
-  };
-
-  const signUpResponse = await request.post('/graphql').send({
-    query: signUpMutation,
-    variables: newsignUpVariables,
-  });
-  console.log(signUpResponse.body);
-
-  const token = signUpResponse.body.data.signUp.token;
+  const token = response.body.data.authenticate.token;
 
   const meResponse = await request
     .post('/graphql')
     .send({ query: meQuery })
     .set('Authorization', `Bearer ${token}`);
 
-  return meResponse.body.data.me.id;
+  const id = meResponse.body.data.me.id;
+
+  return {
+    token: token,
+    id: id,
+  };
 }

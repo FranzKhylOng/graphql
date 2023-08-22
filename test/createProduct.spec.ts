@@ -1,4 +1,4 @@
-import { fixture, loginAndGetToken, signUpAndGetUserId } from './fixture';
+import { fixture, loginAndGetToken } from './fixture';
 import { faker } from '@faker-js/faker';
 
 describe('create product', () => {
@@ -11,8 +11,7 @@ describe('create product', () => {
   type ProductBodyType = {
     name: string;
     description: string;
-    owner: string;
-    id?: any;
+    owner?: any;
   };
 
   const createMutation = `mutation($input: CreateProductInput!) {
@@ -25,9 +24,8 @@ describe('create product', () => {
     `;
   test.concurrent('successful product creation', async () => {
     const { request, teardown } = await fixture();
-    const token = await loginAndGetToken(request);
-    const id = await signUpAndGetUserId(request);
-    productbody = { ...productbody, id: id };
+    const { token, id } = await loginAndGetToken(request);
+    productbody = { ...productbody, owner: id };
 
     const variables = {
       input: productbody,
