@@ -2,16 +2,15 @@ import { fixture, loginAndGetToken } from './fixture';
 import { faker } from '@faker-js/faker';
 
 describe('create product', () => {
-  let productbody: ProductBodyType = {
-    name: faker.commerce.product(),
-    description: faker.commerce.productDescription(),
-    owner: faker.database.mongodbObjectId(),
-  };
-
   type ProductBodyType = {
     name: string;
     description: string;
     owner?: any;
+  };
+
+  let productbody: ProductBodyType = {
+    name: faker.commerce.product(),
+    description: faker.commerce.productDescription(),
   };
 
   const createMutation = `mutation($input: CreateProductInput!) {
@@ -26,7 +25,6 @@ describe('create product', () => {
     const { request, teardown } = await fixture();
     const { token, id } = await loginAndGetToken(request);
     productbody = { ...productbody, owner: id };
-
     const variables = {
       input: productbody,
     };
