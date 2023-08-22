@@ -39,7 +39,10 @@ describe('create product', () => {
       .expect(200);
 
     expect(response.body.errors).toBeUndefined();
-
+    expect(response.body.data.createProduct).toMatchObject({
+      name: productbody.name,
+      description: productbody.description,
+    });
     await teardown();
   });
 });
