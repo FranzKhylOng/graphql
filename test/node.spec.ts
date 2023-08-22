@@ -21,6 +21,10 @@ describe('node', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
+
+    expect(response.body.data.node).toHaveProperty('firstname');
+    expect(response.body.data.node).toHaveProperty('lastname');
+    expect(response.body.data.node).toHaveProperty('emailAddress');
     expect(response.body.errors).toBeUndefined();
     await teardown();
   });
@@ -46,11 +50,14 @@ describe('node', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
+
+    expect(response.body.data.node).toHaveProperty('name');
+    expect(response.body.data.node).toHaveProperty('description');
     expect(response.body.errors).toBeUndefined();
     await teardown();
   });
 
-  test.concurrent('node product', async () => {
+  test.concurrent('node wrong id', async () => {
     const { request, teardown } = await fixture();
     const { token } = await loginAndGetToken(request);
 
