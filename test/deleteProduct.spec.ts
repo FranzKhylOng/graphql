@@ -49,4 +49,26 @@ describe('deleteProduct', () => {
     expect(response.body.errors[0].message).toBe('Invalid token');
     await teardown();
   });
+
+  test.concurrent('wrong product id', async () => {
+    const { request, teardown } = await fixture();
+    const { token } = await loginAndGetToken(request);
+    const productid = 'i_am_a_wrong_id';
+    const variables = {
+      input: {
+        id: productid,
+      },
+    };
+
+    const response = await request
+      .post('/graphql')
+      .send({
+        query: deleteMutation,
+        variables: variables,
+      })
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    expect(response.body.errors[0].message).toBe('Invalid token');
+    await teardown();
+  });
 });
