@@ -61,7 +61,8 @@ export class ProductService {
   }
 
   async delete(id: DeleteProductInput['id']): Promise<boolean> {
-    const result = await this.model.findByIdAndDelete(id);
+    const decodedId = Buffer.from(id, 'base64').toString('utf-8');
+    const result = await this.model.findByIdAndDelete(decodedId);
     return !!result;
   }
 
