@@ -2,8 +2,6 @@ interface Node {
   id: Binary!
 }
 
-union NodeResult = Account | Product
-
 type Query {
-  node(id: Binary!): NodeResult!
+  node(id: Binary!): Node!
 }
