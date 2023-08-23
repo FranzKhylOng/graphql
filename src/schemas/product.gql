@@ -2,7 +2,7 @@ type Product implements Node {
   id: Binary!
   name: String!
   description: String!
-  owner: Binary!
+  owner: Account!
   createdAt: DateTime!
   updatedAt: DateTime!
 }

@@ -1,6 +1,7 @@
-import { Binary } from '../graphql';
 import { Document } from 'mongoose';
 import DataLoader from 'dataloader';
+
+export type Binary = Buffer;
 
 export type AppContext = {
   claims: Claims;
