@@ -1,15 +1,20 @@
 import { GraphQLScalarType, Kind, ASTNode } from 'graphql';
+import mongoose from 'mongoose';
 
 export const BinaryScalar = new GraphQLScalarType({
   name: 'Binary',
   description: 'Binary custom scalar type',
   serialize(value): string {
+    if (value instanceof mongoose.Types.ObjectId) {
+      return Buffer.from(value.toString()).toString('base64url');
+    }
     if (value instanceof Buffer) {
       return value.toString('base64url');
     }
     if (typeof value === 'string') {
-      // Check if the string could be a base64 string
-      if (/^[A-Za-z0-9+/=]*$/.test(value)) {
+      if (
+        /^[A-Za-z0-9+/=]*$/.test(Buffer.from(value, 'base64url').toString())
+      ) {
         return value;
       }
     }
