@@ -8,7 +8,6 @@ import {
   Context,
 } from '@nestjs/graphql';
 import { ProductService } from '../product/product.service';
-import { AccountService } from '../account/account.service';
 import {
   CreateProductInput,
   UpdateProductInput,
@@ -24,14 +23,12 @@ import { AppContext } from '../libs/types';
 export class ProductResolver {
   constructor(
     private productService: ProductService,
-    private accountService: AccountService,
     private dataLoaderService: DataLoaderService,
   ) {}
 
   @Mutation('createProduct')
   async createProduct(@Args('input') createProductInput: CreateProductInput) {
-    const product = await this.productService.create(createProductInput);
-    return product;
+    return this.productService.create(createProductInput);
   }
 
   @Mutation('updateProduct')

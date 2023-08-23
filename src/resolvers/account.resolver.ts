@@ -20,7 +20,9 @@ export class AccountResolver {
       throw new Error('BAD_USER_INPUT');
     }
     const user = await this.accountService.create(signUpInput);
-    return this.accountService.generateToken(user);
+    return this.accountService.generateToken({
+      emailAddress: user.emailAddress,
+    });
   }
 
   @Mutation('authenticate')

@@ -26,6 +26,7 @@ export class DataLoaderService {
     if (type === 'Account') {
       let dataLoader = R.path(['dataLoaders', 'Account'], ctx);
       if (!dataLoader) {
+        ctx.dataLoaders.Account = dataLoader;
         dataLoader = new DataLoader(async (ids: Binary[]) => {
           const accounts = (await this.accountService.retrieve({
             _id: {
@@ -47,6 +48,7 @@ export class DataLoaderService {
     if (type === 'Product') {
       let dataLoader = R.path(['dataLoaders', 'Product'], ctx);
       if (!dataLoader) {
+        ctx.dataLoaders.Product = dataLoader;
         dataLoader = new DataLoader(async (ids: Binary[]) => {
           const products = (await this.productService.retrieve({
             _id: {
