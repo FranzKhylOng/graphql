@@ -22,18 +22,10 @@ export class ProductService {
   constructor(@InjectModel('Product') private model: Model<Product>) {}
 
   async create(createProductInput: CreateProductInput) {
-    const ownerId = Buffer.from(createProductInput.owner, 'base64').toString(
-      'utf-8',
-    );
-    const product = await this.model.create({
+    return this.model.create({
       ...createProductInput,
-      owner: ownerId,
+      owner: createProductInput.owner.toString('utf-8'),
     });
-    const base64Id = Buffer.from(String(product._id)).toString('base64');
-    return {
-      ...product.toObject(),
-      id: base64Id,
-    };
   }
 
   async update(id: Binary, updates: UpdateProductInput['body']) {
