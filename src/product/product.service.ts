@@ -107,10 +107,7 @@ export class ProductService {
     const edges: ProductEdge[] = products.slice(0, first).map((product) => {
       return {
         cursor: product.cursor,
-        node: {
-          ...product.toJSON(),
-          id: Buffer.from(product._id.toString()),
-        },
+        node: product.toJSON(),
       };
     });
 

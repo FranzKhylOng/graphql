@@ -3,7 +3,19 @@ import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { Binary } from '../graphql';
 
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+  virtuals: {
+    id: {
+      get() {
+        return this._id;
+      },
+    },
+  },
+  toJSON: {
+    virtuals: true,
+  },
+})
 export class Product extends Document {
   @Prop()
   name: string;
