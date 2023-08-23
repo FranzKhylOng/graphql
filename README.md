@@ -1,7 +1,7 @@
 ## Action Points
 
 - integration & unit tests
-- test name to kebab case
+  ~~ - test name to kebab case ~~
 - make the file libraries as simple as possible, separate multiple operations in a single file
   ~~ - in product graphql schema, chance owner type to Account! ~~
   ~~ - transfrom \_id to id via virtuals in mongoose schema ~~
