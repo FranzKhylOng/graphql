@@ -79,10 +79,9 @@ export async function fixture() {
   const app = module.createNestApplication();
 
   await app.listen(0);
-  const response = await supertest(app.getHttpServer());
 
   return {
-    request: response,
+    request: supertest(app.getHttpServer()),
     module,
     teardown: async () => {
       await app.close();
