@@ -48,8 +48,8 @@ export class AccountService {
     this.model.findByIdAndDelete(id);
   }
 
-  async generateToken(user: UserDocument) {
-    const payload = { emailAddress: user.emailAddress, sub: user.id };
+  async generateToken(user: { emailAddress: string }) {
+    const payload = { emailAddress: user.emailAddress, sub: user.emailAddress };
     return {
       token: await this.jwtService.signAsync(payload),
     };
