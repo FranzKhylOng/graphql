@@ -35,6 +35,8 @@ describe('queryProducts', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
+    expect(response.body.data.products).toHaveProperty('edges');
+    expect(response.body.data.products).toHaveProperty('pageInfo');
     expect(response.body.errors).toBeUndefined();
     await teardown();
   });
