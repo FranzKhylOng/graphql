@@ -14,13 +14,15 @@ export type Claims = {
   id: string;
 };
 
-export type UserDocument = Document & {
+export type User = {
   firstname: string;
   lastname: string;
   emailAddress: string;
   password: string;
   id?: Binary;
 };
+
+export type UserDocument = Document & User;
 
 export type Product = {
   id: Binary;
