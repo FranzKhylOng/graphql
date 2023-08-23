@@ -1,6 +1,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+  virtuals: {
+    id: {
+      get() {
+        return this._id;
+      },
+    },
+  },
+  toJSON: {
+    virtuals: true,
+  },
+})
 export class User {
   @Prop()
   firstname: string;
