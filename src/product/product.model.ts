@@ -5,6 +5,7 @@ import { Binary } from '../graphql';
 
 @Schema({
   timestamps: true,
+  id: false,
   virtuals: {
     id: {
       get() {

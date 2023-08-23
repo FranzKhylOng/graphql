@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema({
   timestamps: true,
+  id: false,
   virtuals: {
     id: {
       get() {

@@ -41,7 +41,7 @@ export class AccountService {
   }
 
   async retrieve(filter: FilterQuery<UserDocument>) {
-    return this.model.find<UserDocument>(filter, { __v: 0 }).lean();
+    return this.model.find<UserDocument>(filter, { __v: 0 });
   }
 
   async delete(id: string) {

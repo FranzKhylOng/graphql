@@ -60,9 +60,10 @@ export class ProductResolver {
 
   @ResolveField()
   async owner(@Parent() product: Product, @Context() ctx: AppContext) {
-    return this.dataLoaderService
+    const account = await this.dataLoaderService
       .dataLoader(ctx, 'Account')
       .load(product.owner);
+    return account.toJSON();
   }
 
   @Query('products')
