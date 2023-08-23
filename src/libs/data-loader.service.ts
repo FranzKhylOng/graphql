@@ -5,6 +5,7 @@ import { AppContext, UserDocument, Product } from '../libs/types';
 import { Injectable } from '@nestjs/common';
 import DataLoader from 'dataloader';
 import R from 'ramda';
+import mongoose from 'mongoose';
 
 @Injectable()
 export class DataLoaderService {
@@ -27,12 +28,15 @@ export class DataLoaderService {
       if (!dataLoader) {
         dataLoader = new DataLoader(async (ids: Binary[]) => {
           const accounts = (await this.accountService.retrieve({
-            id: {
+            _id: {
               $in: ids,
             },
           })) as UserDocument[];
           return R.map(
-            (id) => accounts.find((account) => account._id.compare(id) === 0),
+            (id) =>
+              accounts.find((account) =>
+                (account._id as mongoose.Types.ObjectId).equals(id),
+              ),
             ids,
           );
         });
@@ -45,7 +49,7 @@ export class DataLoaderService {
       if (!dataLoader) {
         dataLoader = new DataLoader(async (ids: Binary[]) => {
           const products = (await this.productService.retrieve({
-            id: {
+            _id: {
               $in: ids,
             },
           })) as Product[];

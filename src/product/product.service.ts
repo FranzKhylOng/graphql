@@ -15,15 +15,11 @@ import {
   ProductsFilter,
   Binary,
 } from '../graphql';
-import { AccountService } from '../account/account.service';
 import { pipe, toPairs, fromPairs, map } from 'ramda';
 
 @Injectable()
 export class ProductService {
-  constructor(
-    @InjectModel('Product') private model: Model<Product>,
-    private accountService: AccountService,
-  ) {}
+  constructor(@InjectModel('Product') private model: Model<Product>) {}
 
   async create(createProductInput: CreateProductInput) {
     const ownerId = Buffer.from(createProductInput.owner, 'base64').toString(

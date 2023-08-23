@@ -18,7 +18,7 @@ export class AccountService {
   async create(user: SignUpInput) {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(user.password, saltRounds);
-    return await this.model.create({ ...user, password: hashedPassword });
+    return this.model.create({ ...user, password: hashedPassword });
   }
 
   async update(id: string, updates: UserDocument) {

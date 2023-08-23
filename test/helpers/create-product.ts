@@ -12,8 +12,8 @@ mutation($input: CreateProductInput!) {
 
 export async function createProduct(
   request: supertest.SuperTest<supertest.Test>,
-  params: Partial<Omit<Product, 'owner'>> &
-    Pick<Product, 'owner'> & { token: string },
+  params: Partial<Omit<Product, 'owner'>> & { owner: string },
+  token?: string,
 ) {
   const response = await request
     .post('/graphql')
@@ -25,7 +25,7 @@ export async function createProduct(
         ...params,
       },
     })
-    .set('Authorization', `Bearer ${params.token}`)
+    .set('Authorization', `Bearer ${token}`)
     .expect(200);
 
   return response.body.data?.createProduct.id;
