@@ -2,7 +2,6 @@ import { fixture } from './fixture';
 import { faker } from '@faker-js/faker';
 
 describe('signUp account', () => {
-  //variables to be used for the tests
   const userbody = {
     email: faker.internet.email(),
     password: faker.internet.password(),

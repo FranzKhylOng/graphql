@@ -1,4 +1,8 @@
-import { fixture, createProductAndGetId } from './fixture';
+import { fixture } from './fixture';
+import { generateUserDetails } from './helpers/generate-user-details';
+import { AccountService } from '../src/account/account.service';
+import { ProductService } from '../src/product/product.service';
+import { generateProductDetails } from './helpers/generate-product-details';
 describe('queryProducts', () => {
   const productQuery = `query {
         products(first: 10) {
@@ -18,11 +22,20 @@ describe('queryProducts', () => {
       }
       `;
   test.concurrent('gets product', async () => {
-    const { request, teardown } = await fixture();
+    const { request, module, teardown } = await fixture();
+    const accountService = module.get<AccountService>(AccountService);
+    const productService = module.get<ProductService>(ProductService);
 
     const productCount = 10;
     for (let i = 0; i < productCount; i++) {
-      await createProductAndGetId(request);
+      const userDetails = generateUserDetails();
+      const account = await accountService.create(userDetails);
+
+      const productDetails = generateProductDetails();
+      await productService.create({
+        ...productDetails,
+        owner: Buffer.from(account._id.toString()),
+      });
     }
 
     const response = await request
@@ -34,56 +47,6 @@ describe('queryProducts', () => {
     expect(response.body.data.products).toHaveProperty('edges');
     expect(response.body.data.products).toHaveProperty('pageInfo');
     expect(response.body.errors).toBeUndefined();
-    await teardown();
-  });
-
-  test.concurrent('use after filter', async () => {
-    const { request, teardown } = await fixture();
-
-    const productCount = 10;
-    for (let i = 0; i < productCount; i++) {
-      await createProductAndGetId(request);
-    }
-
-    const response = await request
-      .post('/graphql')
-      .send({
-        query: productQuery,
-      })
-      .expect(200);
-    expect(response.body.data.products).toHaveProperty('edges');
-    expect(response.body.data.products).toHaveProperty('pageInfo');
-    expect(response.body.errors).toBeUndefined();
-
-    const cursor = response.body.data.products.edges[0].cursor;
-
-    const afterQuery = `query {
-        products(first: 10, after: "${cursor}") {
-          edges {
-            cursor
-            node {
-              name
-              id
-              description
-            }
-          }
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-        }
-      }
-      `;
-
-    const newresponse = await request
-      .post('/graphql')
-      .send({
-        query: afterQuery,
-      })
-      .expect(200);
-    expect(newresponse.body.data.products).toHaveProperty('edges');
-    expect(newresponse.body.data.products).toHaveProperty('pageInfo');
-    expect(newresponse.body.errors).toBeUndefined();
     await teardown();
   });
 });

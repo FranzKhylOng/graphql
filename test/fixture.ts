@@ -6,7 +6,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 // import { ProductService } from '../src/product/product.service';
 // import { UserService } from '../src/user/user.service';
 import { faker } from '@faker-js/faker';
-import * as supertest from 'supertest';
+import supertest from 'supertest';
 
 //queries and variables to be used in functions
 const signUpMutation = `
