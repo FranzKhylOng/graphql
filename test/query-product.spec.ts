@@ -34,7 +34,7 @@ describe('queryProducts', () => {
       const productDetails = generateProductDetails();
       await productService.create({
         ...productDetails,
-        owner: Buffer.from(account._id.toString()),
+        owner: Buffer.from(account.id.toString()),
       });
     }
 

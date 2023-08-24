@@ -1,5 +1,6 @@
-import { fixture, loginAndGetToken } from './fixture';
-
+import { fixture } from './fixture';
+import { AccountService } from '../src/account/account.service';
+import { generateUserDetails } from './helpers/generate-user-details';
 describe('me', () => {
   const query = `query{
         me{
@@ -10,9 +11,16 @@ describe('me', () => {
         }
       }`;
   test.concurrent('me query', async () => {
-    const { request, teardown } = await fixture();
-    const { token } = await loginAndGetToken(request);
+    const { request, module, teardown } = await fixture();
+    const accountService = module.get<AccountService>(AccountService);
 
+    const userDetails = generateUserDetails();
+    const account = await accountService.create(userDetails);
+    const { token } = await accountService.generateToken({
+      emailAddress: account.emailAddress,
+    });
+
+    console.log(token);
     const response = await request
       .post('/graphql')
       .send({
