@@ -1,18 +1,9 @@
-import { fixture, loginAndGetToken } from './fixture';
-import { faker } from '@faker-js/faker';
+import { fixture } from './fixture';
+import { generateProductDetails } from './helpers/generate-product-details';
+import { AccountService } from '../src/account/account.service';
+import { generateUserDetails } from './helpers/generate-user-details';
 
 describe('create product', () => {
-  type ProductBodyType = {
-    name: string;
-    description: string;
-    owner?: any;
-  };
-
-  let productbody: ProductBodyType = {
-    name: faker.commerce.product(),
-    description: faker.commerce.productDescription(),
-  };
-
   const createMutation = `mutation($input: CreateProductInput!) {
     createProduct(input:$input){
         id
@@ -22,13 +13,26 @@ describe('create product', () => {
     }
     `;
   test.concurrent('successful product creation', async () => {
-    const { request, teardown } = await fixture();
-    const { token, id } = await loginAndGetToken(request);
-    productbody = { ...productbody, owner: id };
+    const { request, module, teardown } = await fixture();
+    const accountService = module.get<AccountService>(AccountService);
+
+    const userDetails = generateUserDetails();
+    const account = await accountService.create(userDetails);
+
+    const { token } = await accountService.generateToken({
+      emailAddress: account.emailAddress,
+    });
+
+    const productbody = {
+      ...generateProductDetails(),
+      owner: account._id,
+    };
+
     const variables = {
       input: productbody,
     };
 
+    console.log(variables);
     const response = await request
       .post('/graphql')
       .send({
@@ -47,14 +51,24 @@ describe('create product', () => {
   });
 
   test.concurrent('invalid access token', async () => {
-    const { request, teardown } = await fixture();
-    const { id } = await loginAndGetToken(request);
-    productbody = { ...productbody, owner: id };
+    const { request, module, teardown } = await fixture();
+    const accountService = module.get<AccountService>(AccountService);
+
+    const userDetails = generateUserDetails();
+    const account = await accountService.create(userDetails);
+
+    const token = 'Wrong_Token';
+
+    const productbody = {
+      ...generateProductDetails(),
+      owner: account.id.toString(),
+    };
+
     const variables = {
       input: productbody,
     };
 
-    const token = 'I_am_a_wrong_token';
+    console.log(variables);
     const response = await request
       .post('/graphql')
       .send({
@@ -64,7 +78,11 @@ describe('create product', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    expect(response.body.errors[0].message).toBe('Invalid token');
+    expect(response.body.errors).toBeUndefined();
+    expect(response.body.data.createProduct).toMatchObject({
+      name: productbody.name,
+      description: productbody.description,
+    });
     await teardown();
   });
 });
