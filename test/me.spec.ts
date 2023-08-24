@@ -20,7 +20,6 @@ describe('me', () => {
       emailAddress: account.emailAddress,
     });
 
-    console.log(token);
     const response = await request
       .post('/graphql')
       .send({

@@ -1,22 +1,9 @@
 import { fixture } from './fixture';
-import { faker } from '@faker-js/faker';
+import { generateUserDetails } from './helpers/generate-user-details';
+import { AccountService } from '../src/account/account.service';
 
 describe('Authentication', () => {
-  // Variables for the tests
-  const userbody = {
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-  };
-
-  const signUpMutation = `
-    mutation($input: SignUpInput!){
-      signUp(input: $input){
-        token
-      }
-    }
-  `;
+  const userbody = generateUserDetails();
 
   const authenticateMutation = `
     mutation($input: AuthenticateInput!){
@@ -26,32 +13,18 @@ describe('Authentication', () => {
     }
   `;
 
-  const signUpVariables = {
-    input: {
-      emailAddress: userbody.email,
-      password: userbody.password,
-      firstname: userbody.firstName,
-      lastname: userbody.lastName,
-    },
-  };
-
   const authenticateVariables = {
     input: {
-      emailAddress: userbody.email,
+      emailAddress: userbody.emailAddress,
       password: userbody.password,
     },
   };
 
   test('authenticates user', async () => {
-    const { request, teardown } = await fixture();
+    const { request, module, teardown } = await fixture();
+    const accountService = module.get<AccountService>(AccountService);
 
-    await request
-      .post('/graphql')
-      .send({
-        query: signUpMutation,
-        variables: signUpVariables,
-      })
-      .expect(200);
+    await accountService.create(userbody);
 
     const response = await request
       .post('/graphql')
@@ -68,19 +41,14 @@ describe('Authentication', () => {
   });
 
   test('fails to authenticate with wrong password', async () => {
-    const { request, teardown } = await fixture();
+    const { request, module, teardown } = await fixture();
+    const accountService = module.get<AccountService>(AccountService);
 
-    await request
-      .post('/graphql')
-      .send({
-        query: signUpMutation,
-        variables: signUpVariables,
-      })
-      .expect(200);
+    await accountService.create(userbody);
 
     const wrongPasswordVariables = {
       input: {
-        emailAddress: userbody.email,
+        emailAddress: userbody.emailAddress,
         password: 'WrongPassword',
       },
     };
