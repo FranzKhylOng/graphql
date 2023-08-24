@@ -1,14 +1,7 @@
 import { fixture } from './fixture';
-import { faker } from '@faker-js/faker';
+import { generateUserDetails } from './helpers/generate-user-details';
 
 describe('signUp account', () => {
-  const userbody = {
-    email: faker.internet.email(),
-    password: faker.internet.password(),
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
-  };
-
   const mutation = `
   mutation($input: SignUpInput!){
     signUp(input: $input){
@@ -16,14 +9,9 @@ describe('signUp account', () => {
     }
   }
 `;
-
+  const userbody = generateUserDetails();
   const variables = {
-    input: {
-      emailAddress: userbody.email,
-      password: userbody.password,
-      firstname: userbody.firstName,
-      lastname: userbody.lastName,
-    },
+    input: userbody,
   };
 
   test.concurrent('creates user', async () => {
