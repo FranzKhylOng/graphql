@@ -27,6 +27,7 @@ export type UserDocument = Document & User;
 
 export type Product = {
   id: Binary;
+  base64URLID: string;
   name: string;
   price: number;
   cursor: Binary;
