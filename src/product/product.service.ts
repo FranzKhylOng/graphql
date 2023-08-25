@@ -29,14 +29,18 @@ export class ProductService {
   }
 
   async update(id: Binary, updates: UpdateProductInput['body']) {
-    const bufferId = Buffer.from(id, 'base64').toString('utf-8');
     const updatedProduct = await this.model.findByIdAndUpdate(
-      bufferId,
+      id.toString('utf-8'),
       updates,
       {
         new: true,
       },
     );
+
+    if (!updatedProduct) {
+      throw new Error('Product not found');
+    }
+
     return updatedProduct.toObject();
   }
 

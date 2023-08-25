@@ -3,6 +3,7 @@ import { generateUserDetails } from './helpers/generate-user-details';
 import { AccountService } from '../src/account/account.service';
 import { ProductService } from '../src/product/product.service';
 import { generateProductDetails } from './helpers/generate-product-details';
+import mongoose from 'mongoose';
 
 describe('updateProduct', () => {
   const updateMutation = `mutation($input: UpdateProductInput!){
@@ -28,14 +29,14 @@ describe('updateProduct', () => {
     const productDetails = generateProductDetails();
     const product = await productService.create({
       ...productDetails,
-      owner: Buffer.from(account.id.toString()),
+      owner: account.id.toString(),
     });
 
     const newProduct = generateProductDetails();
 
     const variables = {
       input: {
-        id: product.id,
+        id: product.base64URLID,
         body: newProduct,
       },
     };
@@ -64,14 +65,14 @@ describe('updateProduct', () => {
     const productDetails = generateProductDetails();
     const product = await productService.create({
       ...productDetails,
-      owner: Buffer.from(account.id.toString()),
+      owner: account.id.toString(),
     });
 
     const newProduct = generateProductDetails();
 
     const variables = {
       input: {
-        id: product.id,
+        id: product.base64URLID,
         body: newProduct,
       },
     };
@@ -84,7 +85,7 @@ describe('updateProduct', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-    expect(response.body.errors).toBeUndefined();
+    expect(response.body.errors[0].message).toBe('Invalid token');
     await teardown();
   });
 
@@ -102,14 +103,16 @@ describe('updateProduct', () => {
     const productDetails = generateProductDetails();
     await productService.create({
       ...productDetails,
-      owner: Buffer.from(account.id.toString()),
+      owner: account.id.toString(),
     });
 
     const newProduct = generateProductDetails();
 
     const variables = {
       input: {
-        id: 'wrong_id',
+        id: Buffer.from(new mongoose.Types.ObjectId().toString()).toString(
+          'base64url',
+        ),
         body: newProduct,
       },
     };
@@ -122,7 +125,7 @@ describe('updateProduct', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-    expect(response.body.errors).toBeUndefined();
+    expect(response.body.errors).toBeTruthy();
     await teardown();
   });
 });

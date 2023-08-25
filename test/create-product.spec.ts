@@ -12,7 +12,7 @@ describe('create product', () => {
       }
     }
     `;
-  test.concurrent('successful product creation', async () => {
+  test.only('successful product creation', async () => {
     const { request, module, teardown } = await fixture();
     const accountService = module.get<AccountService>(AccountService);
 
@@ -25,7 +25,7 @@ describe('create product', () => {
 
     const productbody = {
       ...generateProductDetails(),
-      owner: account._id,
+      owner: account.id.toString(),
     };
 
     const variables = {
