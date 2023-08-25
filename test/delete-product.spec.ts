@@ -111,7 +111,6 @@ describe('deleteProduct', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-    console.log(response.body);
     expect(response.body.data.deleteProduct).toBe(false);
     await teardown();
   });
