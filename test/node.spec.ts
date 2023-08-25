@@ -3,6 +3,7 @@ import { generateUserDetails } from './helpers/generate-user-details';
 import { AccountService } from '../src/account/account.service';
 import { ProductService } from '../src/product/product.service';
 import { generateProductDetails } from './helpers/generate-product-details';
+import mongoose from 'mongoose';
 
 describe('node', () => {
   test.concurrent('node account', async () => {
@@ -16,7 +17,7 @@ describe('node', () => {
     });
 
     const nodeAccount = `query{
-        node(id: "${account.id}"){
+        node(id: "${Buffer.from(account.id.toString()).toString('base64url')}"){
              ... on Account{
             firstname
             lastname
@@ -32,7 +33,6 @@ describe('node', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-
     expect(response.body.data.node).toHaveProperty('firstname');
     expect(response.body.data.node).toHaveProperty('lastname');
     expect(response.body.data.node).toHaveProperty('emailAddress');
@@ -54,10 +54,10 @@ describe('node', () => {
     const productDetails = generateProductDetails();
     const product = await productService.create({
       ...productDetails,
-      owner: Buffer.from(account.id.toString()),
+      owner: account.id.toString(),
     });
     const nodeProduct = `query{
-        node(id: "${product.id}"){
+        node(id: "${product.base64URLID}"){
              ... on Product{
             name
             description
@@ -90,7 +90,9 @@ describe('node', () => {
     });
 
     const nodeProduct = `query{
-        node(id: "wrong_id"){
+        node(id: ${Buffer.from(
+          new mongoose.Types.ObjectId().toString(),
+        ).toString('base64url')}){
              ... on Product{
             name
             description
