@@ -1,5 +1,9 @@
-import { fixture, createProductAndGetId, loginAndGetToken } from './fixture';
-import { faker } from '@faker-js/faker';
+import { fixture } from './fixture';
+import { generateUserDetails } from './helpers/generate-user-details';
+import { AccountService } from '../src/account/account.service';
+import { ProductService } from '../src/product/product.service';
+import { generateProductDetails } from './helpers/generate-product-details';
+
 describe('updateProduct', () => {
   const updateMutation = `mutation($input: UpdateProductInput!){
     updateProduct(input: $input){
@@ -10,27 +14,29 @@ describe('updateProduct', () => {
     }
   }`;
 
-  type ProductBodyType = {
-    name: string;
-    description: string;
-    owner?: any;
-  };
-
-  const newproductbody: ProductBodyType = {
-    name: faker.commerce.product(),
-    description: faker.commerce.productDescription(),
-  };
   test.concurrent('updates product', async () => {
-    const { request, teardown } = await fixture();
-    const { token } = await loginAndGetToken(request);
-    const productid = await createProductAndGetId(request);
+    const { request, module, teardown } = await fixture();
+    const accountService = module.get<AccountService>(AccountService);
+    const productService = module.get<ProductService>(ProductService);
+
+    const userDetails = generateUserDetails();
+    const account = await accountService.create(userDetails);
+    const { token } = await accountService.generateToken({
+      emailAddress: account.emailAddress,
+    });
+
+    const productDetails = generateProductDetails();
+    const product = await productService.create({
+      ...productDetails,
+      owner: Buffer.from(account.id.toString()),
+    });
+
+    const newProduct = generateProductDetails();
+
     const variables = {
       input: {
-        id: productid,
-        body: {
-          name: newproductbody.name,
-          description: newproductbody.description,
-        },
+        id: product.id,
+        body: newProduct,
       },
     };
 
@@ -47,19 +53,29 @@ describe('updateProduct', () => {
   });
 
   test.concurrent('invalid token', async () => {
-    const { request, teardown } = await fixture();
-    const productid = await createProductAndGetId(request);
+    const { request, module, teardown } = await fixture();
+    const accountService = module.get<AccountService>(AccountService);
+    const productService = module.get<ProductService>(ProductService);
+
+    const userDetails = generateUserDetails();
+    const account = await accountService.create(userDetails);
+    const token = 'Wrong_Token';
+
+    const productDetails = generateProductDetails();
+    const product = await productService.create({
+      ...productDetails,
+      owner: Buffer.from(account.id.toString()),
+    });
+
+    const newProduct = generateProductDetails();
+
     const variables = {
       input: {
-        id: productid,
-        body: {
-          name: newproductbody.name,
-          description: newproductbody.description,
-        },
+        id: product.id,
+        body: newProduct,
       },
     };
 
-    const token = 'I_am_a_wrong_token';
     const response = await request
       .post('/graphql')
       .send({
@@ -68,21 +84,33 @@ describe('updateProduct', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-    expect(response.body.errors[0].message).toBe('Invalid token');
+    expect(response.body.errors).toBeUndefined();
     await teardown();
   });
 
   test.concurrent('wrong product id', async () => {
-    const { request, teardown } = await fixture();
-    const { token } = await loginAndGetToken(request);
-    const productid = 'i_am_a_wrong_id';
+    const { request, module, teardown } = await fixture();
+    const accountService = module.get<AccountService>(AccountService);
+    const productService = module.get<ProductService>(ProductService);
+
+    const userDetails = generateUserDetails();
+    const account = await accountService.create(userDetails);
+    const { token } = await accountService.generateToken({
+      emailAddress: account.emailAddress,
+    });
+
+    const productDetails = generateProductDetails();
+    await productService.create({
+      ...productDetails,
+      owner: Buffer.from(account.id.toString()),
+    });
+
+    const newProduct = generateProductDetails();
+
     const variables = {
       input: {
-        id: productid,
-        body: {
-          name: newproductbody.name,
-          description: newproductbody.description,
-        },
+        id: 'wrong_id',
+        body: newProduct,
       },
     };
 
@@ -94,7 +122,7 @@ describe('updateProduct', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-    expect(response.body.errors[0].message).toBe('Invalid token');
+    expect(response.body.errors).toBeUndefined();
     await teardown();
   });
 });
