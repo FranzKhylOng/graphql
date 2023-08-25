@@ -3,6 +3,7 @@ import { generateUserDetails } from './helpers/generate-user-details';
 import { AccountService } from '../src/account/account.service';
 import { ProductService } from '../src/product/product.service';
 import { generateProductDetails } from './helpers/generate-product-details';
+import mongoose from 'mongoose';
 
 describe('deleteProduct', () => {
   const deleteMutation = `mutation($input: DeleteProductInput!){
@@ -22,12 +23,12 @@ describe('deleteProduct', () => {
     const productDetails = generateProductDetails();
     const product = await productService.create({
       ...productDetails,
-      owner: Buffer.from(account.id.toString()),
+      owner: account.id.toString(),
     });
 
     const variables = {
       input: {
-        id: product.id,
+        id: product.base64URLID,
       },
     };
 
@@ -56,12 +57,12 @@ describe('deleteProduct', () => {
     const productDetails = generateProductDetails();
     const product = await productService.create({
       ...productDetails,
-      owner: Buffer.from(account.id.toString()),
+      owner: account.id.toString(),
     });
 
     const variables = {
       input: {
-        id: product.id,
+        id: product.base64URLID,
       },
     };
 
@@ -73,8 +74,7 @@ describe('deleteProduct', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-    expect(response.body.data.deleteProduct).toBe(true);
-    expect(response.body.errors).toBeUndefined();
+    expect(response.body.errors[0].message).toBe('Invalid token');
     await teardown();
   });
 
@@ -92,12 +92,14 @@ describe('deleteProduct', () => {
     const productDetails = generateProductDetails();
     await productService.create({
       ...productDetails,
-      owner: Buffer.from(account.id.toString()),
+      owner: account.id.toString(),
     });
 
     const variables = {
       input: {
-        id: 'I am a wrong Id',
+        id: Buffer.from(new mongoose.Types.ObjectId().toString()).toString(
+          'base64url',
+        ),
       },
     };
 
@@ -109,8 +111,8 @@ describe('deleteProduct', () => {
       })
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-    expect(response.body.data.deleteProduct).toBe(true);
-    expect(response.body.errors).toBeUndefined();
+    console.log(response.body);
+    expect(response.body.data.deleteProduct).toBe(false);
     await teardown();
   });
 });
