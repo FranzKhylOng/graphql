@@ -12,6 +12,11 @@ import { Binary } from '../graphql';
         return this._id;
       },
     },
+    base64URLID: {
+      get() {
+        return Buffer.from(this._id.toString()).toString('base64url');
+      },
+    },
   },
   toJSON: {
     virtuals: true,
