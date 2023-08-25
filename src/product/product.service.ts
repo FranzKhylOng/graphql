@@ -15,7 +15,7 @@ import {
   ProductsFilter,
   Binary,
 } from '../graphql';
-import { pipe, toPairs, fromPairs, map } from 'ramda';
+import { pipe, toPairs, fromPairs, map, isNil } from 'ramda';
 
 @Injectable()
 export class ProductService {
@@ -45,14 +45,11 @@ export class ProductService {
   }
 
   retrieveById(id: Binary) {
-    const decodedId = Buffer.from(id, 'base64').toString('utf-8');
-    return this.model.findById(decodedId);
+    return this.model.findById(id.toString('utf-8'));
   }
 
   async delete(id: DeleteProductInput['id']): Promise<boolean> {
-    const decodedId = Buffer.from(id, 'base64').toString('utf-8');
-    const result = await this.model.findByIdAndDelete(decodedId);
-    return !!result;
+    return !isNil(await this.model.findByIdAndDelete(id.toString('utf-8')));
   }
 
   async getProducts({
