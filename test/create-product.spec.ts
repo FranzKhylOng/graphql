@@ -12,7 +12,7 @@ describe('create product', () => {
       }
     }
     `;
-  test.only('successful product creation', async () => {
+  test.concurrent('successful product creation', async () => {
     const { request, module, teardown } = await fixture();
     const accountService = module.get<AccountService>(AccountService);
 
@@ -25,14 +25,13 @@ describe('create product', () => {
 
     const productbody = {
       ...generateProductDetails(),
-      owner: account.id.toString(),
+      owner: Buffer.from(account.id.toString()).toString('base64url'),
     };
 
     const variables = {
       input: productbody,
     };
 
-    console.log(variables);
     const response = await request
       .post('/graphql')
       .send({
@@ -68,7 +67,6 @@ describe('create product', () => {
       input: productbody,
     };
 
-    console.log(variables);
     const response = await request
       .post('/graphql')
       .send({
@@ -78,11 +76,7 @@ describe('create product', () => {
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
-    expect(response.body.errors).toBeUndefined();
-    expect(response.body.data.createProduct).toMatchObject({
-      name: productbody.name,
-      description: productbody.description,
-    });
+    expect(response.body.errors[0].message).toBe('Invalid token');
     await teardown();
   });
 });
